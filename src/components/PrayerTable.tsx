@@ -1,36 +1,52 @@
-// PrayerTable.tsx
-// Left-hand panel showing a simple table: Prayer | Adhan | Iqama.
+// src/components/PrayerTable.tsx
+// Left column showing: Prayer | Adhan | Iqama
+// Works with Netlify function structure:
+// {
+//   Day: "Friday",
+//   prayers: {
+//      Fajr:    { adhan: "5:55 AM", iqama: "6:25 AM" },
+//      Sunrise: { adhan: "7:58 AM", iqama: null },
+//      ...
+//   }
+// }
 
 import type { PrayerTimes, PrayerName } from "../hooks/usePrayerTimes";
 
 type PrayerTableProps = {
-  prayerTimes: PrayerTimes; // today's combined prayer times from API
+  prayerTimes: PrayerTimes;
 };
 
 export default function PrayerTable({ prayerTimes }: PrayerTableProps) {
-  const prayers = prayerTimes.prayers; // shortcut to nested prayers object
+  const prayers = prayerTimes.prayers;
 
-  // Order of rows to display
-  const order: PrayerName[] = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
+  // Order in which to display rows
+  const order: PrayerName[] = [
+    "Fajr",
+    "Sunrise",
+    "Dhuhr",
+    "Asr",
+    "Maghrib",
+    "Isha",
+  ];
 
   return (
-    <div className="h-full flex flex-col bg-sky-900/40">
-      {/* Day label at top (e.g. FRIDAY) */}
-      <div className="px-6 pt-4 pb-1 text-sm uppercase tracking-wide text-sky-200/80">
+    <div className="h-full flex flex-col bg-sky-900/40 border-r border-slate-800">
+      {/* Day header */}
+      <div className="px-6 pt-4 pb-2 text-sm uppercase tracking-wide text-sky-200/80">
         {prayerTimes.Day}
       </div>
 
-      {/* Table header row */}
+      {/* Table header */}
       <div className="grid grid-cols-[2fr,1fr,1fr] px-6 py-3 border-b border-slate-700 text-sky-50">
         <div className="text-lg font-semibold">Prayer</div>
         <div className="text-lg font-semibold text-right">Adhan</div>
         <div className="text-lg font-semibold text-right">Iqama</div>
       </div>
 
-      {/* Table body rows */}
+      {/* Table rows */}
       <div className="flex-1 overflow-hidden">
         {order.map((name) => {
-          const info = prayers[name]; // adhan + iqama for this prayer
+          const info = prayers[name];
 
           return (
             <div
@@ -43,7 +59,7 @@ export default function PrayerTable({ prayerTimes }: PrayerTableProps) {
               {/* Adhan time */}
               <div className="text-lg text-right">{info.adhan}</div>
 
-              {/* Iqama time (if null, show "--") */}
+              {/* Iqama time or "--" */}
               <div className="text-lg text-right opacity-70">
                 {info.iqama ?? "--"}
               </div>
