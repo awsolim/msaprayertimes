@@ -1,32 +1,32 @@
-// NextPrayerPanel.tsx
-// Right-hand panel: shows which prayer is next and a live countdown.
+// src/components/NextPrayerPanel.tsx
 
-import type { PrayerTimes } from "../hooks/usePrayerTimes";
+import type { PrayerTimes, PrayerName } from "../hooks/usePrayerTimes";
 import useNow from "../hooks/useNow";
 
 type NextPrayerPanelProps = {
-  prayerTimes: PrayerTimes; // today's prayer times
+  prayerTimes: PrayerTimes;
 };
 
 type PrayerInfo = {
-  name: string;
+  name: PrayerName;
   timeStr: string;
   date: Date;
 };
 
 export default function NextPrayerPanel({ prayerTimes }: NextPrayerPanelProps) {
-  const now = useNow(1000); // re-render every second
+  const now = useNow(1000); // update every second
+  const all = prayerTimes.prayers;
 
-  // Helper: parse a "h:mm AM/PM" time string into a Date for today
-  const parseTimeForToday = (label: string, timeStr: string): PrayerInfo => {
-    const today = new Date(); // today's date
-    const [timePart, meridiem] = timeStr.split(" "); // e.g. "5:55 AM" -> ["5:55", "AM"]
-    const [hourStr, minuteStr] = timePart.split(":"); // "5:55" -> ["5", "55"]
+  // --- Helper to convert adhan time string to a Date object for today ---
+  const parseTimeForToday = (label: PrayerName): PrayerInfo => {
+    const timeStr = all[label].adhan;
+    const today = new Date();
 
-    let hour = parseInt(hourStr, 10);    // convert hour text to number
-    const minute = parseInt(minuteStr, 10); // convert minute text to number
+    const [timePart, meridiem] = timeStr.split(" ");
+    const [hourStr, minuteStr] = timePart.split(":");
+    let hour = parseInt(hourStr, 10);
+    const minute = parseInt(minuteStr, 10);
 
-    // convert from 12-hour clock to 24-hour so Date understands it
     if (meridiem === "PM" && hour !== 12) hour += 12;
     if (meridiem === "AM" && hour === 12) hour = 0;
 
@@ -40,100 +40,65 @@ export default function NextPrayerPanel({ prayerTimes }: NextPrayerPanelProps) {
       0
     );
 
-    return { name: label, timeStr, date }; // return info for this prayer
+    return { name: label, timeStr, date };
   };
 
-  // Build a list of today's prayers in order
+  // List prayers in order
   const prayers: PrayerInfo[] = [
-    parseTimeForToday("Fajr", prayerTimes.Fajr),
-    parseTimeForToday("Sunrise", prayerTimes.Sunrise),
-    parseTimeForToday("Dhuhr", prayerTimes.Dhuhr),
-    parseTimeForToday("Asr", prayerTimes.Asr),
-    parseTimeForToday("Maghrib", prayerTimes.Maghrib),
-    parseTimeForToday("Isha", prayerTimes.Isha),
+    parseTimeForToday("Fajr"),
+    parseTimeForToday("Sunrise"),
+    parseTimeForToday("Dhuhr"),
+    parseTimeForToday("Asr"),
+    parseTimeForToday("Maghrib"),
+    parseTimeForToday("Isha"),
   ];
 
-  // Find the first prayer whose time is still in the future
-  let next = prayers.find((p) => p.date.getTime() > now.getTime());
+  // Find the next prayer
+  let next = prayers.find((p) => p.date > now);
 
-  // If all prayers today have passed, the next one is tomorrow's Fajr
   if (!next) {
-    const tomorrow = new Date(now);
-    tomorrow.setDate(now.getDate() + 1); // advance one day
-
-    const fajrTomorrow = parseTimeForToday("Fajr", prayerTimes.Fajr);
-    fajrTomorrow.date.setFullYear(
-      tomorrow.getFullYear(),
-      tomorrow.getMonth(),
-      tomorrow.getDate()
-    );
-
-    next = fajrTomorrow;
+    // All today's prayers passed → next is tomorrow Fajr
+    next = parseTimeForToday("Fajr");
+    next.date.setDate(next.date.getDate() + 1);
   }
 
-  // Compute difference in milliseconds
+  // Compute countdown
   const diffMs = next.date.getTime() - now.getTime();
-  const safeDiffMs = Math.max(diffMs, 0);        // never negative
+  const diffSec = Math.floor(diffMs / 1000);
+  const hours = Math.floor(diffSec / 3600);
+  const minutes = Math.floor((diffSec % 3600) / 60);
+  const seconds = diffSec % 60;
 
-  const totalSeconds = Math.floor(safeDiffMs / 1000);       // convert to seconds
-  const hours = Math.floor(totalSeconds / 3600);            // hours left
-  const minutes = Math.floor((totalSeconds % 3600) / 60);   // minutes after hours
-  const seconds = totalSeconds % 60;                        // remaining seconds
-
-  // Helper to render two-digit numbers (7 -> "07")
-  const pad = (n: number) => n.toString().padStart(2, "0");
-
+  // --- RETURN JSX (this is what fixes the React error) ---
   return (
-    <div className="h-full flex flex-col items-center justify-center bg-slate-900">
-      {/* Slot for logo/text at top */}
-      <div className="mb-6 text-3xl font-bold tracking-wide text-sky-200">
-        {/* Replace this with an <img> for your MSA logo later if you like */}
-        MSA UofA
-      </div>
+    <div className="h-full flex flex-col items-center justify-center text-sky-100">
+      <h2 className="text-3xl font-semibold mb-2">MSA UofA</h2>
+      <h3 className="text-xl tracking-wide mb-4">NEXT PRAYER</h3>
 
-      {/* Next prayer label */}
-      <div className="mb-2 text-xl uppercase tracking-[0.25em] text-sky-100">
-        NEXT PRAYER
-      </div>
-      <div className="mb-6 text-4xl font-extrabold text-sky-300">
+      <div className="text-5xl font-bold text-sky-300 mb-6">
         {next.name}
       </div>
 
-      {/* Countdown label */}
-      <div className="mb-2 text-lg uppercase tracking-[0.2em] text-slate-300">
-        TIME REMAINING
+      <div className="flex items-center gap-8 text-center font-mono">
+        <div>
+          <div className="text-4xl font-bold">{hours.toString().padStart(2, "0")}</div>
+          <div className="text-xs tracking-wide">HOURS</div>
+        </div>
+
+        <div>
+          <div className="text-4xl font-bold">{minutes.toString().padStart(2, "0")}</div>
+          <div className="text-xs tracking-wide">MINUTES</div>
+        </div>
+
+        <div>
+          <div className="text-4xl font-bold">{seconds.toString().padStart(2, "0")}</div>
+          <div className="text-xs tracking-wide">SECONDS</div>
+        </div>
       </div>
 
-      {/* Countdown digits */}
-      <div className="flex items-center justify-center gap-4 mb-6">
-        <TimeBox label="HOURS" value={pad(hours)} />
-        <TimeBox label="MINUTES" value={pad(minutes)} />
-        <TimeBox label="SECONDS" value={pad(seconds)} />
-      </div>
-
-      {/* Future area for rotating events/adhkar messages */}
-      <div className="mt-4 text-sm text-slate-400 max-w-md text-center">
-        Upcoming events and adhkar messages will appear here inshaAllah.
-      </div>
-    </div>
-  );
-}
-
-type TimeBoxProps = {
-  label: string;
-  value: string;
-};
-
-// Small subcomponent for each countdown column (hours/minutes/seconds)
-function TimeBox({ label, value }: TimeBoxProps) {
-  return (
-    <div className="flex flex-col items-center">
-      <div className="text-5xl font-bold bg-slate-800 px-6 py-3 rounded-xl shadow-lg">
-        {value}
-      </div>
-      <div className="mt-2 text-xs uppercase tracking-[0.25em] text-slate-300">
-        {label}
-      </div>
+      <p className="mt-6 text-sm opacity-60">
+        Upcoming events and adhkar will appear here inshaAllah.
+      </p>
     </div>
   );
 }

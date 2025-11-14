@@ -1,19 +1,22 @@
 import { useEffect, useState } from "react";
 
 // Describe the expected JSON shape from the API
+export type PrayerName = "Fajr" | "Sunrise" | "Dhuhr" | "Asr" | "Maghrib" | "Isha";
+
 export type PrayerTimes = {
-  Day: string;
-  Fajr: string;
-  Sunrise: string;
-  Dhuhr: string;
-  Asr: string;
-  Maghrib: string;
-  Isha: string;
+  Day: string; // day name, e.g. "Friday"
+  prayers: Record<
+    PrayerName,
+    {
+      adhan: string;        // adhan time string
+      iqama: string | null; // iqamah time string or null
+    }
+  >;
 };
 
 // Frontend always calls this relative path.
 // Vite proxies it (in dev) to https://msauofa.ca/prayer-times.
-const API_PATH = "/api/prayer-times";
+const API_PATH = "https://msaprayerdisplay.netlify.app/.netlify/functions/prayer-times";
 
 export default function usePrayerTimes() {
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimes | null>(null); // holds API data

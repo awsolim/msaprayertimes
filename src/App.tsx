@@ -4,7 +4,7 @@
 import HeaderBar from "./components/HeaderBar";          // top bar with title + clock
 import SlideFooter from "./components/SlideFooter";      // bottom bar for events/adhkar
 import PrayerTable from "./components/PrayerTable";      // left 40% table
-import NextPrayerPanel from "./components/nextPrayerPanel"; // right 60% countdown panel
+import NextPrayerPanel from "./components/NextPrayerPanel"; // right 60% countdown panel
 import usePrayerTimes from "./hooks/usePrayerTimes";     // hook that fetches prayer times
 
 function App() {

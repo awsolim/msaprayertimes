@@ -1,26 +1,21 @@
 // PrayerTable.tsx
 // Left-hand panel showing a simple table: Prayer | Adhan | Iqama.
 
-import type { PrayerTimes } from "../hooks/usePrayerTimes";
+import type { PrayerTimes, PrayerName } from "../hooks/usePrayerTimes";
 
 type PrayerTableProps = {
-  prayerTimes: PrayerTimes; // today's prayer times from the API
+  prayerTimes: PrayerTimes; // today's combined prayer times from API
 };
 
 export default function PrayerTable({ prayerTimes }: PrayerTableProps) {
-  // For now, we only have Adhan times from the API; Iqama is a placeholder.
-  const rows = [
-    { label: "Fajr", adhan: prayerTimes.Fajr, iqama: "--" },
-    { label: "Sunrise", adhan: prayerTimes.Sunrise, iqama: "--" },
-    { label: "Dhuhr", adhan: prayerTimes.Dhuhr, iqama: "--" },
-    { label: "Asr", adhan: prayerTimes.Asr, iqama: "--" },
-    { label: "Maghrib", adhan: prayerTimes.Maghrib, iqama: "--" },
-    { label: "Isha", adhan: prayerTimes.Isha, iqama: "--" },
-  ];
+  const prayers = prayerTimes.prayers; // shortcut to nested prayers object
+
+  // Order of rows to display
+  const order: PrayerName[] = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
 
   return (
     <div className="h-full flex flex-col bg-sky-900/40">
-      {/* Optional top line: show the day from the API */}
+      {/* Day label at top (e.g. FRIDAY) */}
       <div className="px-6 pt-4 pb-1 text-sm uppercase tracking-wide text-sky-200/80">
         {prayerTimes.Day}
       </div>
@@ -34,23 +29,27 @@ export default function PrayerTable({ prayerTimes }: PrayerTableProps) {
 
       {/* Table body rows */}
       <div className="flex-1 overflow-hidden">
-        {rows.map((row) => (
-          <div
-            key={row.label}
-            className="grid grid-cols-[2fr,1fr,1fr] px-6 py-3 border-b border-slate-800 text-sky-50"
-          >
-            {/* Prayer name */}
-            <div className="text-lg font-medium">{row.label}</div>
+        {order.map((name) => {
+          const info = prayers[name]; // adhan + iqama for this prayer
 
-            {/* Adhan time */}
-            <div className="text-lg text-right">{row.adhan}</div>
+          return (
+            <div
+              key={name}
+              className="grid grid-cols-[2fr,1fr,1fr] px-6 py-3 border-b border-slate-800 text-sky-50"
+            >
+              {/* Prayer name */}
+              <div className="text-lg font-medium">{name}</div>
 
-            {/* Iqama time (placeholder for now) */}
-            <div className="text-lg text-right opacity-70">
-              {row.iqama}
+              {/* Adhan time */}
+              <div className="text-lg text-right">{info.adhan}</div>
+
+              {/* Iqama time (if null, show "--") */}
+              <div className="text-lg text-right opacity-70">
+                {info.iqama ?? "--"}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
