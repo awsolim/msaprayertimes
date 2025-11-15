@@ -1,12 +1,15 @@
 :root {
-  --panel-bg:   #241f1b;     /* dark sand */
-  --table-bg:   #2f2924;
-  --active-row-bg: #7a5f3d;  /* caramel highlight */
+  /* Backgrounds */
+  --panel-bg: #0f2a20;      /* near-black */
+  --table-bg: #7b7328;      /* deep emerald */
+  --active-row-bg: #4e522c; /* lighter emerald highlight */
 
-  --next:         #f7ead4;  /* soft sand */
-  --current-time: #f1c27d;
-  --timenums:     #fff3db;
-  --tabletext:    #f0dfc7;
+  /* Text */
+  --current-time: #ffe9a8;  /* mint green */
+  --next: #ffe9a8;          /* soft gold */
+  --timenums: #ffffff;
+  --tabletext: #d8f5e6;
 
-  --border: #d7b58d;
+  /* Border */
+  --border: #030000;
 }
