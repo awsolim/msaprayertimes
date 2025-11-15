@@ -1,0 +1,12 @@
+:root {
+  --panel-bg:   #241f1b;     /* dark sand */
+  --table-bg:   #2f2924;
+  --active-row-bg: #7a5f3d;  /* caramel highlight */
+
+  --next:         #f7ead4;  /* soft sand */
+  --current-time: #f1c27d;
+  --timenums:     #fff3db;
+  --tabletext:    #f0dfc7;
+
+  --border: #d7b58d;
+}
