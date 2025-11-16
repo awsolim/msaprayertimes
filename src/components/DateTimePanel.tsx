@@ -30,7 +30,7 @@ export default function DateTimePanel() {
     // Outer container: centers everything and gives us a column layout
     <div className="flex flex-col items-center justify-center text-center text-sky-100">
       {/* DATE centered above */}
-      <div className="text-xl md:text-3xl font-semibold mb-4">
+      <div className="text-xl md:text-3xl tracking-[0.2em] font-semibold mb-4">
         {gregorian}
       </div>
 

@@ -1,71 +1,133 @@
 // src/App.tsx
-// Layout: left 40% = PrayerTable, right 60% = DateTime (top), MSA logo (middle), NextPrayerPanel (bottom).
+// Main layout:
+// - Left 40%  : Prayer table (always visible)
+// - Right 60% : Date/time + next-prayer panel (normal mode)
+//               or Adhan/Iqamah overlay during phase windows.
 
 import DateTimePanel from "./components/DateTimePanel";
 import PrayerTable from "./components/PrayerTable";
 import NextPrayerPanel from "./components/NextPrayerPanel";
-import usePrayerPhase from "./hooks/usePrayerPhase"; // NEW: adhan/iqama phase logic
-import muezzinImg from "./assets/muezzin.png"; // NEW: adhan icon
-import prayersImg from "./assets/prayers.png"; // NEW: iqamah icon
 
 import usePrayerTimes from "./hooks/usePrayerTimes";
- // MSA logo image
+import usePrayerPhase from "./hooks/usePrayerPhase";
+
+// Arabic calligraphy images for iqamah screen
+import fajrImg from "./assets/fajr.png";
+import dhuhrImg from "./assets/dhuhr.png";
+import asrImg from "./assets/asr.png";
+import maghrebImg from "./assets/maghreb.png";
+import ishaImg from "./assets/isha.png";
 
 function App() {
-  const { prayerTimes, loading, error } = usePrayerTimes(); // hook that fetches + normalizes prayer data
-  // NEW: determine if we are in normal mode, adhan screen, or iqama screen
+  // Fetch + normalize prayer times from the Netlify function
+  const { prayerTimes, loading, error } = usePrayerTimes();
+
+  // Determine whether we are in "normal", "adhan", or "iqamah" phase,
+  // and which prayer is currently active for that phase.
   const { phase, activePrayer } = usePrayerPhase(prayerTimes);
 
-    // 🔔 Fullscreen Adhan / Iqamah screen override
-  // If we are inside the adhan/iqamah window for some prayer,
-  // we temporarily show a very simple full-screen message instead
-  // of the normal layout.
-  // 🔔 Fullscreen Adhan / Iqamah screen override
-if (phase !== "normal" && activePrayer) {
-  const isAdhan = phase === "adhan";
+  // ───────────────────────────────────────────────
+  // Adhan / Iqamah overlay (RIGHT SIDE ONLY)
+  // ───────────────────────────────────────────────
+  //
+  // If we are in an adhan or iqamah window AND we have a valid active prayer,
+  // we override the right panel with a black screen, but keep the left table.
+  if (phase !== "normal" && activePrayer && prayerTimes) {
+    const isAdhan = phase === "adhan";
 
-  const iconSrc = isAdhan ? muezzinImg : prayersImg;
-  const mainTitle = isAdhan ? "Time for Adhan" : "Time for Prayer";
-  const subTitle = `${activePrayer} ${isAdhan ? "Adhan" : "Iqamah"} now`;
+    // Main titles for the overlay
+    const mainTitle = isAdhan ? "Time for Adhan" : "Time for Prayer";
+    const subTitle = `${activePrayer} ${isAdhan ? "Adhan" : "Iqamah"} now`;
 
-  return (
-    <div className="min-h-screen w-full bg-black text-slate-100 flex items-center justify-center">
-      <div className="w-full max-w-7xl px-10 py-10 flex flex-col md:flex-row items-center justify-center gap-16">
+    // Format the current time as "4:45 PM"
+    const now = new Date();
+    const currentTime = now.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    });
 
-        {/* ICON LEFT */}
-        <div className="flex-1 flex items-center justify-center">
-          <img
-            src={iconSrc}
-            alt=""
-            className="w-64 h-64 md:w-96 md:h-96 object-contain drop-shadow-[0_0_35px_rgba(255,255,255,0.18)]"
-          />
+    // Pick the Arabic calligraphy image for the current prayer (iqamah only)
+    let arabicImg: string | null = null;
+    if (phase === "iqama") {
+      switch (activePrayer) {
+        case "Fajr":
+          arabicImg = fajrImg;
+          break;
+        case "Dhuhr":
+          arabicImg = dhuhrImg;
+          break;
+        case "Asr":
+          arabicImg = asrImg;
+          break;
+        case "Maghrib":
+          arabicImg = maghrebImg;
+          break;
+        case "Isha":
+          arabicImg = ishaImg;
+          break;
+        default:
+          arabicImg = null;
+      }
+    }
+
+    return (
+      <div className="h-screen w-screen bg-black text-white grid grid-cols-[40%_60%] overflow-hidden">
+        {/* LEFT SIDE: keep the normal prayer table visible */}
+        <div className="h-full bg-(--table-bg)">
+          <PrayerTable prayerTimes={prayerTimes} />
         </div>
 
-        {/* TEXT RIGHT — centered + larger */}
-        <div className="flex-1 flex flex-col items-center justify-center text-center space-y-8">
-          <h1 className="text-6xl md:text-8xl font-extrabold leading-tight">
+        {/* RIGHT SIDE: black Adhan / Iqamah screen */}
+        <div className="flex flex-col items-center justify-center text-center px-6">
+          {/* Current time – large white text at the top */}
+          <div className="text-5xl md:text-7xl font-bold mb-6">
+            {currentTime}
+          </div>
+
+          {/* Main heading: "Time for Adhan" or "Time for Prayer" */}
+          <h1 className="text-6xl md:text-7xl font-extrabold mb-4">
             {mainTitle}
           </h1>
-          <p className="text-3xl md:text-4xl font-medium text-slate-200">
+
+          {/* Subheading: "<Prayer> Adhan/Iqamah now" */}
+          <p className="text-3xl md:text-4xl text-slate-200 mb-8">
             {subTitle}
           </p>
-          <p className="text-xl md:text-2xl text-slate-400 max-w-lg">
+
+          {/* Huge Arabic calligraphy image (iqamah only) */}
+          {phase === "iqama" && arabicImg && (
+            <img
+              src={arabicImg}
+              alt={activePrayer}
+              className="
+
+                mx-auto
+                my-10
+                w-[25rem] h-[20em]
+
+                
+                object-contain
+              "
+            />
+          )}
+
+          {/* Instruction text at the bottom */}
+          <p className="text-xl md:text-2xl text-slate-400 mt-6">
             Please maintain silence and prepare for the prayer.
           </p>
         </div>
-
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-
-
+  // ───────────────────────────────────────────────
+  // Normal layout
+  // ───────────────────────────────────────────────
   return (
     <div className="h-screen w-screen bg-(--panel-bg) text-sky-50 overflow-hidden">
-      {/* Two main columns: left (40%) and right (60%) */}
+      {/* 2-column layout: left = table, right = time + next-prayer */}
       <div className="h-full grid grid-cols-[40%_60%]">
-        {/* LEFT COLUMN: Prayer table only */}
+        {/* LEFT COLUMN: Prayer table (with loading/error states) */}
         <div className="border-r bg-(--table-bg) border-slate-800">
           {loading && (
             <div className="h-full flex items-center justify-center text-sky-300 text-lg">
@@ -81,20 +143,18 @@ if (phase !== "normal" && activePrayer) {
           )}
 
           {!loading && !error && prayerTimes && (
-            <PrayerTable prayerTimes={prayerTimes} /> // full-height table on the left
+            <PrayerTable prayerTimes={prayerTimes} />
           )}
         </div>
 
-        {/* RIGHT COLUMN: DateTime (top), MSA logo (middle), NextPrayerPanel (bottom) */}
+        {/* RIGHT COLUMN: Date/time at top, next-prayer countdown below */}
         <div className="flex flex-col h-full">
-          {/* Date/time – moved DOWN using mt-8, centered by the component itself */}
+          {/* Date + time panel near the top */}
           <div className="px-8 mt-8">
             <DateTimePanel />
           </div>
 
-
-
-          {/* Next prayer countdown fills the remaining space */}
+          {/* Next prayer countdown fills remaining vertical space */}
           <div className="flex-1 mb-16">
             {loading && (
               <div className="h-full flex items-center justify-center text-sky-300 text-lg">

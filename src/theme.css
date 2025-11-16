@@ -13,3 +13,19 @@
   /* Border */
   --border: #030000;
 }
+
+@keyframes prayerPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 18px rgba(255, 255, 255, 0.25));
+  }
+  50% {
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 40px rgba(255, 255, 255, 0.45));
+  }
+}
+
+.prayer-arabic-glow {
+  animation: prayerPulse 3s ease-in-out infinite;
+}
