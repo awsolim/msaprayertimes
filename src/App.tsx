@@ -103,9 +103,8 @@ function App() {
 
                 mx-auto
                 my-10
-                w-[25rem] h-[20em]
+                w-[25rem] h-[20rem]
 
-                
                 object-contain
               "
             />

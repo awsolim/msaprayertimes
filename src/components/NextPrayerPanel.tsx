@@ -123,9 +123,9 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
     <div className="h-full w-full flex items-center justify-center">
       <div className="text-center px-8 max-w-4xl w-full">
         {/* MAIN TITLE: e.g. "Maghrib Adhan in" or "Maghrib Iqamah in" */}
-        <h2 className="text-6xl md:text-9xl font-bold text-(--next) mb-10">
+        <h2 className="text-6xl md:text-[120px] font-bold text-(--next) mb-10">
           {nextStage.prayerName}{" "}
-          <span className="font-mono text-7xl text-white ">
+          <span className="font-mono text-[55px] text-white ">
             {isAdhanStage ? "Adhan" : "Iqamah"} in
           </span>
         </h2>
@@ -135,39 +135,39 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
           {/* HOURS */}
           <div className="min-w-[110px]">
             <div className="text-6xl md:text-[150px] font-extrabold">{hh}</div>
-            <div className="text-sm md:text-2xl tracking-[0.4em] mt-3 bg-white/10 rounded-xl  backdrop-blur-sm px-4 py-2 inline-block">
+            <div className="text-sm md:text-[20px] tracking-[0.4em] mt-3">
               HOURS
             </div>
           </div>
 
           {/* Colon between hours and minutes */}
-          <div className="text-5xl md:text-9xl font-extrabold pb-4">
+          <div className="text-5xl md:text-[150px] font-extrabold pb-4">
             :
           </div>
 
           {/* MINUTES */}
           <div className="min-w-[110px]">
             <div className="text-6xl md:text-[150px] font-extrabold">{mm}</div>
-            <div className="text-sm md:text-2xl tracking-[0.4em] mt-3  bg-white/10 rounded-xl  backdrop-blur-sm px-4 py-2 inline-block">
+            <div className="text-sm md:text-[20px] tracking-[0.4em] mt-3">
               MINUTES
             </div>
           </div>
 
           {/* Colon between minutes and seconds */}
-          <div className="text-5xl md:text-9xl font-extrabold pb-4">
+          <div className="text-5xl md:text-[150px] font-extrabold pb-4">
             :
           </div>
 
           {/* SECONDS */}
           <div className="min-w-[110px]">
             <div className="text-6xl md:text-[150px] font-extrabold">{ss}</div>
-            <div className="text-sm md:text-2xl tracking-[0.4em] mt-3  bg-white/10 rounded-xl  backdrop-blur-sm px-4 py-2 inline-block">
+            <div className="text-sm md:text-[20px] tracking-[0.4em] mt-3">
               SECONDS
             </div>
           </div>
         </div>
 
-       
+        
       </div>
     </div>
   );

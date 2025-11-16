@@ -102,24 +102,24 @@ export default function PrayerTable({ prayerTimes }: Props) {
             <div
               key={name}
               className={
-                "flex-1 grid grid-cols-[r_1fr_1fr] gap-10 px-6 border-b border-slate-800 items-center " +
+                "flex-1 grid grid-cols-[1fr_1fr_1fr] gap-10 px-6 border-b border-slate-800 items-center " +
                 (isNext
                   ? "bg-(--active-row-bg) text-sky-100 border-l-4 border-sky-300"
                   : "text-sky-50")
               }
             >
               {/* Prayer name – large label on the left */}
-              <div className="text-2xl md:text-3xl font-bold text-(--tabletext)">
+              <div className="text-2xl md:text-4xl font-bold text-(--tabletext)">
                 {name}
               </div>
 
               {/* Adhan time – large numeric display */}
-              <div className="text-4xl md:text-[70px] font-mono text-right tracking-wide text-(--timenums)">
+              <div className="text-4xl md:text-7xl font-mono text-right tracking-wide text-(--timenums)">
                 {stripAmPm(info.adhan)}
               </div>
 
               {/* Iqama time – large numeric display */}
-              <div className="text-4xl md:text-6xl font-mono text-right tracking-wide opacity-90 text-(--timenums) whitespace-nowrap">
+              <div className="text-4xl md:text-6xl font-mono text-right tracking-wide opacity-90 text-(--timenums)">
                 {info.iqama ? stripAmPm(info.iqama) : "--"}
               </div>
             </div>
