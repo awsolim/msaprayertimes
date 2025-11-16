@@ -135,7 +135,7 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
           {/* HOURS */}
           <div className="min-w-[110px]">
             <div className="text-6xl md:text-[150px] font-extrabold">{hh}</div>
-            <div className="text-sm md:text-[20px] tracking-[0.4em] mt-3">
+            <div className="text-sm md:text-[20px] tracking-[0.4em] mt-3 bg-white/10 rounded-xl px-4 py-2 inline-block">
               HOURS
             </div>
           </div>
@@ -148,7 +148,7 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
           {/* MINUTES */}
           <div className="min-w-[110px]">
             <div className="text-6xl md:text-[150px] font-extrabold">{mm}</div>
-            <div className="text-sm md:text-[20px] tracking-[0.4em] mt-3">
+            <div className="text-sm md:text-[20px] tracking-[0.4em] mt-3 bg-white/10 rounded-xl px-4 py-2 inline-block">
               MINUTES
             </div>
           </div>
@@ -161,7 +161,7 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
           {/* SECONDS */}
           <div className="min-w-[110px]">
             <div className="text-6xl md:text-[150px] font-extrabold">{ss}</div>
-            <div className="text-sm md:text-[20px] tracking-[0.4em] mt-3">
+            <div className="text-sm md:text-[20px] tracking-[0.4em] mt-3 bg-white/10 rounded-xl px-4 py-2 inline-block">
               SECONDS
             </div>
           </div>
