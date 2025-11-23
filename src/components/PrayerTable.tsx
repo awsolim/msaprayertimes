@@ -80,7 +80,7 @@ export default function PrayerTable({ prayerTimes }: Props) {
     }) ?? "Fajr";
 
   return (
-    <div className="h-full flex flex-col bg-(--tbg) border-r border-(--border)">
+    <div className="h-full flex flex-col bg-(image:--table-bg) border-r border-(--border)">
       {/* Header row – bigger and aligned with the numbers */}
       <div className="grid grid-cols-[2fr_1fr_1fr] gap-10 px-6 py-2 border-b border-(--border) text-(--tabletext)">
         <div /> {/* empty cell where "Prayer" used to be */}
@@ -102,9 +102,9 @@ export default function PrayerTable({ prayerTimes }: Props) {
             <div
               key={name}
               className={
-                "flex-1 grid grid-cols-[1fr_1fr_1fr] gap-10 px-6 border-b border-slate-800 items-center " +
+                "flex-1 grid grid-cols-[1fr_1fr_1fr] gap-10 px-6 border-b border-(--border) items-center " +
                 (isNext
-                  ? "bg-(--active-row-bg) text-sky-100 border-l-4 border-sky-300"
+                  ? "bg-(--active-row-bg) text-sky-100 border-l-4 border-(--active-border)"
                   : "text-sky-50")
               }
             >
