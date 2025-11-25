@@ -1,6 +1,8 @@
 
 
-/*
+
+/* Green With Red */
+
   :root {
   --panel-bg: radial-gradient(circle at 20% 0%, #071b15, #06261b 40%, #0d3f2a);
   --table-bg: linear-gradient(180deg, #215b38, #15402a);
@@ -13,7 +15,7 @@
   --border: rgba(0, 0, 0, 0.7);
   --active-border: rgba(255, 255, 255, 0.08);
 }   
-*/
+
 
 
 /*
@@ -123,7 +125,7 @@
 */
 
 
-
+/*
 :root {
   --panel-bg: radial-gradient(circle at top, #3b2a1c, #5c4430 40%, #7c5b3c 70%, #a07b53);
   --table-bg: linear-gradient(180deg, #7c5d3f, #5a412c);
@@ -138,4 +140,4 @@
   --border: rgba(60, 40, 20, 0.7);
   --active-border: rgba(255, 230, 200, 0.18);
 }
-
+*/
