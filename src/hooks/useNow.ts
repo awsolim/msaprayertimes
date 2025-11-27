@@ -1,20 +1,18 @@
 import { useEffect, useState } from "react";
 
-// Custom hook that returns a Date object representing "now".
-// NEW: if the URL contains ?debugTime=HH:MM, we freeze time at that
-// value for *today* so you can test different parts of the day.
+
 export default function useNow(intervalMs: number = 1000) {
-  // Figure out if a debug time is present when the hook is first used
+
   const [debugNow] = useState<Date | null>(() => {
     // If window doesn't exist (e.g., during SSR), just bail out
     if (typeof window === "undefined") return null;
 
-    const params = new URLSearchParams(window.location.search); // read URL query params
+    const params = new URLSearchParams(window.location.search); 
     const debugTime = params.get("debugTime"); // expect something like "15:30"
 
-    if (!debugTime) return null; // no override -> use real time
+    if (!debugTime) return null; 
 
-    const [hourStr, minuteStr] = debugTime.split(":"); // split "HH:MM"
+    const [hourStr, minuteStr] = debugTime.split(":");
     const hour = parseInt(hourStr, 10);
     const minute = parseInt(minuteStr, 10);
 
@@ -31,8 +29,7 @@ export default function useNow(intervalMs: number = 1000) {
       return null;
     }
 
-    const now = new Date(); // current real date
-    // Build a Date for *today* with the provided debug hours/minutes
+    const now = new Date(); // 
     const frozen = new Date(
       now.getFullYear(),
       now.getMonth(),
@@ -47,12 +44,9 @@ export default function useNow(intervalMs: number = 1000) {
     return frozen; // this will freeze "now" for the whole app
   });
 
-  // State that normally tracks the real current time
   const [now, setNow] = useState<Date>(() => new Date());
 
   useEffect(() => {
-    // If we have a debug override, do NOT start an interval.
-    // The hook will just always return the debug time.
     if (debugNow) {
       return; // nothing to clean up
     }
