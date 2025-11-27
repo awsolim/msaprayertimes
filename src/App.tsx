@@ -133,29 +133,33 @@ function App() {
         </div>
 
         {/* RIGHT COLUMN: Date/time at top, rotating content below */}
-        <div className="flex flex-col h-full">
-          <div className="px-8 mt-8">
-            <DateTimePanel />
-          </div>
+        {/* RIGHT COLUMN: Date/time at top, rotating content below */}
+<div className="flex flex-col h-full">
+  {/* Clock row: fixed height, doesn't shrink */}
+  <div className="px-8 mt-8 shrink-0">
+    <DateTimePanel />
+  </div>
 
-          <div className="flex-1 mb-16">
-            {loading && (
-              <div className="h-full flex items-center justify-center text-sky-300 text-lg">
-                Loading…
-              </div>
-            )}
+  {/* Main right panel: fills remaining height, content scrolls inside it */}
+  <div className="flex-1 overflow-hidden">
+    {loading && (
+      <div className="h-full flex items-center justify-center text-sky-300 text-lg">
+        Loading…
+      </div>
+    )}
 
-            {!loading && error && (
-              <div className="h-full flex items-center justify-center text-red-400 text-lg">
-                Unable to show right panel.
-              </div>
-            )}
+    {!loading && error && (
+      <div className="h-full flex items-center justify-center text-red-400 text-lg">
+        Unable to show right panel.
+      </div>
+    )}
 
-            {!loading && !error && prayerTimes && (
-              <RotatingSlides prayerTimes={prayerTimes} />
-            )}
-          </div>
-        </div>
+    {!loading && !error && prayerTimes && (
+      <RotatingSlides prayerTimes={prayerTimes} />
+    )}
+  </div>
+</div>
+
       </div>
     </div>
   );

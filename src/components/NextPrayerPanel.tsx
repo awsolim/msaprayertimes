@@ -141,7 +141,7 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
           </div>
 
           {/* Colon between hours and minutes */}
-          <div className="text-5xl md:text-[150px] font-extrabold pb-4">
+          <div className="text-5xl md:text-[150px] font-extrabold pb-16">
             :
           </div>
 
@@ -154,7 +154,7 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
           </div>
 
           {/* Colon between minutes and seconds */}
-          <div className="text-5xl md:text-[150px] font-extrabold pb-4">
+          <div className="text-5xl md:text-[150px] font-extrabold pb-16">
             :
           </div>
 

@@ -8,11 +8,13 @@
   --table-bg: linear-gradient(180deg, #215b38, #15402a);
   --active-row-bg: #5d1d32;
   --iqamatime-bg: radial-gradient(circle at center, #1d2321, #0b0a1b, #1d0723);
+
   --current-time: #ffe9a8;
-  --next: #f28c8c;
+  --next: #e3d583;
   --timenums: #ffffff;
   --tabletext: #eafaf1;
-  --border: rgba(0, 0, 0, 0.7);
+
+  --border: #215b38;
   --active-border: rgba(255, 255, 255, 0.08);
 }   
 
