@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 
 // How often to refresh events (ms) – gentle for 24/7 display
-const POLL_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
+// const POLL_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
 
 // Normal events + optional Jumuah-specific fields
 export type EventRow = {
