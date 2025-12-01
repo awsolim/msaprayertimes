@@ -122,46 +122,48 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
   return (
     <div className="h-full w-full flex items-center justify-center">
       <div className="text-center px-8 max-w-4xl w-full">
-        {/* MAIN TITLE: e.g. "Maghrib Adhan in" or "Maghrib Iqamah in" */}
-        <h2 className="text-6xl md:text-[120px] font-bold text-(--next) mb-10">
-          {nextStage.prayerName}{" "}
-          <span className="font-mono text-[55px] text-white ">
-            {isAdhanStage ? "Adhan" : "Iqamah"} in
-          </span>
-        </h2>
+        {/* PRAYER NAME on its own line */}
+    <h2 className="text-6xl md:text-[180px] font-bold text-(--next) mb-4">
+      {nextStage.prayerName}
+    </h2>
+
+    {/* "Adhan in" or "Iqamah in" centered underneath */}
+    <h3 className="font-mono text-[85px] text-white ">
+      {isAdhanStage ? "Adhan" : "Iqamah"} in
+    </h3>
 
         {/* COUNTDOWN: HH : MM : SS with labels underneath */}
         <div className="flex justify-center items-end gap-4 md:gap-6 font-mono mb-10">
           {/* HOURS */}
           <div className="min-w-[110px]">
-            <div className="text-6xl md:text-[150px] font-extrabold">{hh}</div>
-            <div className="text-sm md:text-[20px] tracking-[0.4em] mt-3 bg-white/10 rounded-xl px-4 py-2 inline-block">
+            <div className="text-6xl md:text-[210px] font-extrabold">{hh}</div>
+            <div className="text-sm md:text-[30px] ml-8 tracking-[0.4em] mt-3 bg-white/10 rounded-xl px-4 py-2 inline-block">
               HOURS
             </div>
           </div>
 
           {/* Colon between hours and minutes */}
-          <div className="text-5xl md:text-[150px] font-extrabold pb-16">
+          <div className="text-5xl md:text-[150px] font-extrabold w-[80px] pb-16 px-6 py-4 mb-4">
             :
           </div>
 
           {/* MINUTES */}
-          <div className="min-w-[110px]">
-            <div className="text-6xl md:text-[150px] font-extrabold">{mm}</div>
-            <div className="text-sm md:text-[20px] tracking-[0.4em] mt-3 bg-white/10 rounded-xl px-4 py-2 inline-block">
+          <div className="min-w-[85px]">
+            <div className="text-6xl md:text-[210px] font-extrabold">{mm}</div>
+            <div className="text-sm md:text-[30px] tracking-[0.4em] mt-3 bg-white/10 rounded-xl px-4 py-2 inline-block">
               MINUTES
             </div>
           </div>
 
           {/* Colon between minutes and seconds */}
-          <div className="text-5xl md:text-[150px] font-extrabold pb-16">
+          <div className="text-5xl md:text-[150px] font-extrabold pb-16 mb-4 w-[80px] px-5  ">
             :
           </div>
 
           {/* SECONDS */}
           <div className="min-w-[110px]">
-            <div className="text-6xl md:text-[150px] font-extrabold">{ss}</div>
-            <div className="text-sm md:text-[20px] tracking-[0.4em] mt-3 bg-white/10 rounded-xl px-4 py-2 inline-block">
+            <div className="text-6xl md:text-[210px] mr-8 font-extrabold">{ss}</div>
+            <div className="text-sm md:text-[30px] tracking-[0.4em] mt-3 bg-white/10 rounded-xl px-4 py-2 inline-block">
               SECONDS
             </div>
           </div>

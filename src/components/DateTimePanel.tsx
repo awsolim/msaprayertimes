@@ -30,23 +30,23 @@ export default function DateTimePanel() {
     // Outer container: centers everything and gives us a column layout
     <div className="flex flex-col items-center justify-center text-center text-sky-100">
       {/* DATE centered above */}
-      <div className="text-xl md:text-3xl font-semibold mb-4 tracking-[0.3em]">
+      <div className="text-xl md:text-4xl font-semibold mb-4 tracking-[0.3em]">
         {gregorian}
       </div>
 
       {/* Row with TIME and MSA LOGO aligned vertically */}
       <div className="flex items-center gap-6">
         {/* Current time: warm green, big */}
-        <div className="text-(--current-time) text-5xl md:text-6xl font-semibold">
+        <div className="text-(--current-time) text-5xl md:text-8xl font-semibold">
           {timeStr}
         </div>
 
         {/* MSA logo to the right of the time */}
-        <img
+        {/* <img
           src={msalogo}
           alt="MSA logo"
-          className="h-14 md:h-16 object-contain"
-        />
+          className="h-14 md:h-26 object-contain"
+        /> */}
       </div>
     </div>
   );

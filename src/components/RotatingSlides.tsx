@@ -31,10 +31,10 @@ const DURATION = 10000; // 10 seconds per slide so event slide can show 2 pages
 const FADE_MS = 700; // 0.7 second fade duration
 
 // Debug freeze mode: when true, disable rotation and lock onto one slide
-const DEBUG_FREEZE = false;
+const DEBUG_FREEZE = true;
 
 // Which slide to show when DEBUG_FREEZE is true
-const DEBUG_SLIDE: SlideKind = "hadith";
+const DEBUG_SLIDE: SlideKind = "countdown";
 
 type Props = {
   prayerTimes: PrayerTimes;

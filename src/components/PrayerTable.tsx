@@ -82,12 +82,12 @@ export default function PrayerTable({ prayerTimes }: Props) {
   return (
     <div className="h-full flex flex-col bg-(image:--table-bg) border-r border-(--border)">
       {/* Header row – bigger and aligned with the numbers */}
-      <div className="grid grid-cols-[2fr_1fr_1fr] gap-10 px-6 py-2 border-b border-(--border) text-(--tabletext)">
+      <div className="grid grid-cols-[1fr_1fr_1fr] gap-10 px-6 py-2 border-b border-(--border) text-(--tabletext)">
         <div /> {/* empty cell where "Prayer" used to be */}
-        <div className="text-2xl md:text-3xl font-bold text-right">
+        <div className="text-2xl md:text-6xl font-bold text-right">
           Adhan
         </div>
-        <div className="text-2xl md:text-3xl font-bold text-right">
+        <div className="text-2xl md:text-6xl font-bold text-right">
           Iqama
         </div>
       </div>
@@ -109,17 +109,17 @@ export default function PrayerTable({ prayerTimes }: Props) {
               }
             >
               {/* Prayer name – large label on the left */}
-              <div className="text-2xl md:text-5xl font-bold text-(--tabletext)">
+              <div className="text-2xl md:text-[52px] font-bold text-(--tabletext)">
                 {name}
               </div>
 
               {/* Adhan time – large numeric display */}
-              <div className="text-4xl md:text-7xl font-mono text-right tracking-wide text-(--timenums)">
+              <div className="text-4xl md:text-8xl font-mono text-right tracking-wide text-(--timenums)">
                 {stripAmPm(info.adhan)}
               </div>
 
               {/* Iqama time – large numeric display */}
-              <div className="text-4xl md:text-6xl font-mono text-right tracking-wide opacity-90 text-(--timenums)">
+              <div className="text-4xl md:text-[80px] font-mono text-right tracking-wide opacity-90 text-(--timenums)">
                 {info.iqama ? stripAmPm(info.iqama) : "--"}
               </div>
             </div>

@@ -65,7 +65,7 @@ function App() {
     }
 
     return (
-      <div className="h-screen w-screen bg-(image:--iqamatime-bg) text-white grid grid-cols-[40%_60%] overflow-hidden">
+      <div className="h-screen w-screen bg-(image:--iqamatime-bg) text-white grid grid-cols-[45%_55%] overflow-hidden">
         {/* LEFT SIDE: keep the normal prayer table visible */}
         <div className="h-full bg-(--table-bg)">
           <PrayerTable prayerTimes={prayerTimes} />
@@ -111,7 +111,7 @@ function App() {
   // ───────────────────────────────────────────────
   return (
     <div className="h-screen w-screen bg-(image:--panel-bg) text-sky-50 overflow-hidden">
-      <div className="h-full grid grid-cols-[40%_60%]">
+      <div className="h-full grid grid-cols-[45%_55%]">
         {/* LEFT COLUMN: Prayer table (with loading/error states) */}
         <div className="border-r bg-(--table-bg) border-slate-800">
           {loading && (
