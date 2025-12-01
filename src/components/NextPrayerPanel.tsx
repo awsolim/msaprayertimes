@@ -156,7 +156,7 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
           </div>
 
           {/* Colon between minutes and seconds */}
-          <div className="text-5xl md:text-[150px] font-extrabold pb-16 mb-4 w-[220px] ml-4 translate-x-11 -translate-y-8  ">
+          <div className="text-5xl md:text-[150px] font-extrabold pb-16 mb-4 w-[220px] ml-4 translate-x-12 -translate-y-8  ">
             :
           </div>
 

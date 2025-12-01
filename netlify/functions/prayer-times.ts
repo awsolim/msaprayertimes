@@ -9,10 +9,10 @@ import type { Handler } from "@netlify/functions";
 // Upstream URL that returns the adhan times JSON
 const UPSTREAM_URL = "http://132.145.105.37/prayer-times";
 
-// All the prayer names we care about (and that exist in upstream JSON)
+// All the prayer names we care about
 type PrayerName = "Fajr" | "Sunrise" | "Dhuhr" | "Asr" | "Maghrib" | "Isha";
 
-// Shape of the upstream JSON (adhan-only)
+// Upstream JSON structure
 type UpstreamPrayerTimes = {
   Day: string;
   Fajr: string;
@@ -23,61 +23,58 @@ type UpstreamPrayerTimes = {
   Isha: string;
 };
 
-// Types for iqamah rules coming from IQAMAH_CONFIG
+// Iqamah rules
 type IqamahRule =
-  | { type: "offset"; minutes: number } // iqamah = adhan + minutes
-  | { type: "fixed"; time: string }     // iqamah = fixed 24h "HH:MM"
-  | { type: "none" };                   // no iqamah
+  | { type: "offset"; minutes: number }
+  | { type: "fixed"; time: string }
+  | { type: "none" };
 
 type IqamahConfig = {
-  rules: Partial<Record<PrayerName, IqamahRule>>; // one rule per prayer (optional)
+  rules: Partial<Record<PrayerName, IqamahRule>>;
 };
 
-// Type of the combined response we send back to the frontend
+// Final API response shape
 type CombinedPrayerInfo = {
-  adhan: string;              // adhan time string (e.g. "5:55 AM")
-  iqama: string | null;       // iqamah time string (e.g. "6:25 AM") or null if none
+  adhan: string;
+  iqama: string | null;
 };
 
 type CombinedResponse = {
-  Day: string;                                          // day name from upstream
-  prayers: Record<PrayerName, CombinedPrayerInfo>;      // all prayers with adhan+iqama
+  Day: string;
+  prayers: Record<PrayerName, CombinedPrayerInfo>;
 };
 
-// CORS headers we want on every response
+// -------------------------
+// CORS HEADERS (FIXED)
+// -------------------------
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",                 // allow any origin (you can restrict later)
-  "Access-Control-Allow-Methods": "GET, OPTIONS",     // allowed methods
-  "Access-Control-Allow-Headers": "Content-Type",     // allowed headers
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
 };
 
-// Helper: parse IQAMAH_CONFIG env var or fall back to sensible defaults
+// -------------------------
+// Utility: load iqamah rules
+// -------------------------
 function loadIqamahConfig(): IqamahConfig {
-  // Read raw string from env
   const raw = process.env.IQAMAH_CONFIG;
 
   if (!raw) {
-    // If env var is missing, fall back to a simple default.
-    // You can adjust these defaults, but ideally you always set IQAMAH_CONFIG in Netlify.
     return {
       rules: {
-        Fajr: { type: "offset", minutes: 30 },        // adhan + 30
-        Sunrise: { type: "none" },                    // no iqamah
-        Dhuhr: { type: "fixed", time: "13:30" },      // 1:30 PM
-        Asr: { type: "offset", minutes: 5 },          // adhan + 5
-        Maghrib: { type: "offset", minutes: 5 },      // adhan + 5
-        Isha: { type: "fixed", time: "21:30" },       // 9:30 PM
+        Fajr: { type: "offset", minutes: 30 },
+        Sunrise: { type: "none" },
+        Dhuhr: { type: "fixed", time: "13:30" },
+        Asr: { type: "offset", minutes: 5 },
+        Maghrib: { type: "offset", minutes: 5 },
+        Isha: { type: "fixed", time: "21:30" },
       },
     };
   }
 
   try {
-    // Parse JSON string into IqamahConfig
     return JSON.parse(raw) as IqamahConfig;
-  } catch (err) {
-    console.error("Failed to parse IQAMAH_CONFIG:", err);
-
-    // If parsing fails, fall back to the same defaults as above
+  } catch {
     return {
       rules: {
         Fajr: { type: "offset", minutes: 30 },
@@ -91,73 +88,67 @@ function loadIqamahConfig(): IqamahConfig {
   }
 }
 
-// Helper: convert "h:mm AM/PM" (e.g. "5:55 AM") to minutes since midnight
+// -------------------------
+// Time conversion utilities
+// -------------------------
 function adhanStringToMinutes(timeStr: string): number {
-  // Split into "h:mm" and "AM"/"PM"
   const [timePart, meridiem] = timeStr.split(" ");
   const [hourStr, minuteStr] = timePart.split(":");
 
-  let hour = parseInt(hourStr, 10);    // hours as number (1-12)
-  const minute = parseInt(minuteStr, 10); // minutes as number
+  let hour = parseInt(hourStr, 10);
+  const minute = parseInt(minuteStr, 10);
 
-  // Convert 12-hour clock to 24-hour clock
   if (meridiem === "PM" && hour !== 12) hour += 12;
   if (meridiem === "AM" && hour === 12) hour = 0;
 
-  return hour * 60 + minute; // total minutes since midnight
+  return hour * 60 + minute;
 }
 
-// Helper: convert "HH:MM" 24-hour string (e.g. "21:30") to minutes since midnight
 function fixed24hToMinutes(timeStr: string): number {
   const [hourStr, minuteStr] = timeStr.split(":");
-  const hour = parseInt(hourStr, 10);       // hours 0-23
-  const minute = parseInt(minuteStr, 10);   // minutes 0-59
-  return hour * 60 + minute;                // total minutes
+  return parseInt(hourStr, 10) * 60 + parseInt(minuteStr, 10);
 }
 
-// Helper: convert minutes since midnight back to "h:mm AM/PM" string
 function minutesTo12hString(totalMinutes: number): string {
-  // Normalize to [0, 24*60)
   const minutesInDay = 24 * 60;
   let mins = ((totalMinutes % minutesInDay) + minutesInDay) % minutesInDay;
 
-  const hour24 = Math.floor(mins / 60); // 0-23
-  const minute = mins % 60;             // 0-59
+  const hour24 = Math.floor(mins / 60);
+  const minute = mins % 60;
 
-  const meridiem = hour24 >= 12 ? "PM" : "AM"; // AM/PM
-  let hour12 = hour24 % 12;                    // 0-11 for display
-  if (hour12 === 0) hour12 = 12;               // convert 0 to 12 for 12-hour clock
+  const meridiem = hour24 >= 12 ? "PM" : "AM";
+  let hour12 = hour24 % 12;
+  if (hour12 === 0) hour12 = 12;
 
-  const minuteStr = minute.toString().padStart(2, "0"); // pad minutes with leading zero
-
-  return `${hour12}:${minuteStr} ${meridiem}`; // e.g. "9:30 PM"
+  return `${hour12}:${minute.toString().padStart(2, "0")} ${meridiem}`;
 }
 
-// Helper: compute iqamah time string given an adhan time and rule
-function computeIqamahTime(adhanTime: string, rule: IqamahRule | undefined): string | null {
-  // If no rule or type "none", we return null (meaning no iqamah time)
-  if (!rule || rule.type === "none") {
-    return null;
-  }
+// -------------------------
+// Compute iqamah time
+// -------------------------
+function computeIqamahTime(
+  adhanTime: string,
+  rule: IqamahRule | undefined
+): string | null {
+  if (!rule || rule.type === "none") return null;
 
   if (rule.type === "offset") {
-    // Offset rule: iqamah = adhan + minutes
-    const baseMinutes = adhanStringToMinutes(adhanTime); // convert adhan string to minutes
-    const iqamahMinutes = baseMinutes + rule.minutes;    // add offset
-    return minutesTo12hString(iqamahMinutes);            // convert back to "h:mm AM/PM"
+    const base = adhanStringToMinutes(adhanTime);
+    return minutesTo12hString(base + rule.minutes);
   }
 
   if (rule.type === "fixed") {
-    // Fixed rule: we interpret "HH:MM" 24h string and convert to 12h
-    const fixedMinutes = fixed24hToMinutes(rule.time);   // convert fixed time to minutes
-    return minutesTo12hString(fixedMinutes);             // convert to "h:mm AM/PM"
+    return minutesTo12hString(fixed24hToMinutes(rule.time));
   }
 
-  return null; // fallback (shouldn't be reached)
+  return null;
 }
 
+// -------------------------
+// MAIN HANDLER
+// -------------------------
 export const handler: Handler = async (event) => {
-  // Handle preflight OPTIONS request for CORS
+  // CORS preflight
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
@@ -171,7 +162,6 @@ export const handler: Handler = async (event) => {
     const upstreamRes = await fetch(UPSTREAM_URL);
 
     if (!upstreamRes.ok) {
-      // If upstream fails, forward error with CORS headers
       return {
         statusCode: upstreamRes.status,
         headers: {
@@ -184,38 +174,38 @@ export const handler: Handler = async (event) => {
       };
     }
 
-    // Parse upstream JSON as adhan-only structure
     const upstreamData = (await upstreamRes.json()) as UpstreamPrayerTimes;
 
-    // Load iqamah configuration (rules per prayer)
     const iqamahConfig = loadIqamahConfig();
     const rules = iqamahConfig.rules || {};
 
-    // Build combined response: adhan + iqama for each prayer
-    const prayerNames: PrayerName[] = ["Fajr", "Sunrise", "Dhuhr", "Asr", "Maghrib", "Isha"];
+    const prayerNames: PrayerName[] = [
+      "Fajr",
+      "Sunrise",
+      "Dhuhr",
+      "Asr",
+      "Maghrib",
+      "Isha",
+    ];
 
-    const combinedPrayers: Record<PrayerName, CombinedPrayerInfo> = {} as Record<
+    const combinedPrayers: Record<
       PrayerName,
       CombinedPrayerInfo
-    >;
+    > = {} as any;
 
     for (const name of prayerNames) {
-      const adhan = upstreamData[name];       // adhan time from upstream JSON
-      const rule = rules[name];              // iqamah rule for this prayer (if any)
-      const iqama = computeIqamahTime(adhan, rule); // compute iqamah string or null
+      const adhan = upstreamData[name];
+      const rule = rules[name];
+      const iqama = computeIqamahTime(adhan, rule);
 
-      combinedPrayers[name] = {
-        adhan, // keep original adhan time string
-        iqama, // computed iqamah time string (or null)
-      };
+      combinedPrayers[name] = { adhan, iqama };
     }
 
     const responseBody: CombinedResponse = {
-      Day: upstreamData.Day, // keep day name from upstream
+      Day: upstreamData.Day,
       prayers: combinedPrayers,
     };
 
-    // Return final JSON with CORS headers
     return {
       statusCode: 200,
       headers: {
@@ -227,14 +217,15 @@ export const handler: Handler = async (event) => {
   } catch (err) {
     console.error("Error in Netlify prayer-times function:", err);
 
-    // Generic error if something unexpected happens
     return {
       statusCode: 500,
       headers: {
         ...corsHeaders,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ error: "Internal server error" }),
+      body: JSON.stringify({
+        error: "Internal server error",
+      }),
     };
   }
 };
