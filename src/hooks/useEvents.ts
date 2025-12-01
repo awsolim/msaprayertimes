@@ -3,7 +3,7 @@
 // Also inject a synthetic weekly Jumuah event (with both prayer times).
 
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabaseClient";
+
 
 // How often to refresh events (ms) – gentle for 24/7 display
 const POLL_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
@@ -145,75 +145,49 @@ function buildJumuahEvent(row: JumuahSettingsRow | null): EventRow | null {
   };
 }
 
+// ... imports ...
+
 export default function useEvents() {
   const [events, setEvents] = useState<EventRow[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
-
     const fetchEvents = async () => {
       try {
         setLoading(true);
 
-        const nowIso = new Date().toISOString();
+        // CHANGE: Fetch from your own Vercel API instead of Supabase SDK
+        // This URL assumes the Pi is loading the app from the same domain.
+        // If testing locally, use "http://localhost:3000/api/events"
+        const response = await fetch("/api/events"); 
+        
+        if (!response.ok) throw new Error("Failed to fetch events from proxy");
+        
+        const { events: baseEvents, jumuah } = await response.json();
 
-        // 1) Normal upcoming events
-        const { data: evData, error: evError } = await supabase
-          .from("events")
-          .select("*")
-          .gte("end_at", nowIso)
-          .order("start_at", { ascending: true });
-
-        if (evError) throw evError;
-        const baseEvents = (evData || []) as EventRow[];
-
-        // 2) Weekly Jumuah settings
+        // ... Keep your existing logic that builds the Jumuah event ...
+        // (You might need to adjust the logic slightly to use 'jumuah' from the JSON)
+        
         let jumuahEvent: EventRow | null = null;
-        try {
-          const { data: jData, error: jError } = await supabase
-            .from("jumuah_settings")
-            .select("*")
-            .eq("is_active", true)
-            .order("updated_at", { ascending: false })
-            .limit(1)
-            .maybeSingle();
-
-          if (jError) {
-            console.error("Error loading jumuah_settings:", jError.message);
-          } else if (jData) {
-            jumuahEvent = buildJumuahEvent(jData as JumuahSettingsRow);
-          }
-        } catch (innerErr) {
-          console.error("Failed to build Jumuah event:", innerErr);
+        if (jumuah) {
+             // ... call your buildJumuahEvent(jumuah) helper ...
+             jumuahEvent = buildJumuahEvent(jumuah);
         }
 
         const merged = jumuahEvent ? [jumuahEvent, ...baseEvents] : baseEvents;
+        setEvents(merged);
+        setError(null);
 
-        if (!cancelled) {
-          setEvents(merged);
-          setError(null);
-        }
       } catch (err: any) {
-        if (!cancelled) {
-          console.error("useEvents error:", err);
-          setError(err?.message || "Unknown error loading events");
-        }
+        setError(err.message);
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     };
 
     fetchEvents();
-    const intervalId = window.setInterval(fetchEvents, POLL_INTERVAL_MS);
-
-    return () => {
-      cancelled = true;
-      window.clearInterval(intervalId);
-    };
+    // ... interval logic ...
   }, []);
 
   return { events, loading, error };
