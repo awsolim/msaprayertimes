@@ -123,12 +123,12 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
     <div className="h-full w-full flex items-center justify-center">
       <div className="text-center px-8 max-w-4xl w-full">
         {/* PRAYER NAME on its own line */}
-    <h2 className="text-6xl md:text-[180px] font-bold text-(--next) mb-4">
+    <h2 className="text-6xl md:text-[180px] font-bold text-(--next) mb-4 -translate-y-8">
       {nextStage.prayerName}
     </h2>
 
     {/* "Adhan in" or "Iqamah in" centered underneath */}
-    <h3 className="font-mono text-[85px] text-white ">
+    <h3 className="font-mono text-[85px] text-white -translate-y-8">
       {isAdhanStage ? "Adhan" : "Iqamah"} in
     </h3>
 
