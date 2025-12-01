@@ -136,33 +136,33 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
         <div className="flex justify-center items-end gap-4 md:gap-6 font-mono mb-10">
           {/* HOURS */}
           <div className="min-w-[110px]">
-            <div className="text-6xl md:text-[210px] font-extrabold">{hh}</div>
+            <div className="text-6xl md:text-[250px] font-extrabold">{hh}</div>
             <div className="text-sm md:text-[30px] ml-8 tracking-[0.4em] mt-3 bg-white/10 rounded-xl px-4 py-2 inline-block">
               HOURS
             </div>
           </div>
 
           {/* Colon between hours and minutes */}
-          <div className="text-5xl md:text-[150px] font-extrabold w-[80px] pb-16 px-6 py-4 mb-4">
+          <div className="text-5xl md:text-[150px] font-extrabold w-[80px] pb-16 translate-x-11 -translate-y-8 mb-4">
             :
           </div>
 
           {/* MINUTES */}
           <div className="min-w-[85px]">
-            <div className="text-6xl md:text-[210px] font-extrabold">{mm}</div>
+            <div className="text-6xl md:text-[250px] font-extrabold">{mm}</div>
             <div className="text-sm md:text-[30px] tracking-[0.4em] mt-3 bg-white/10 rounded-xl px-4 py-2 inline-block">
               MINUTES
             </div>
           </div>
 
           {/* Colon between minutes and seconds */}
-          <div className="text-5xl md:text-[150px] font-extrabold pb-16 mb-4 w-[80px] px-5  ">
+          <div className="text-5xl md:text-[150px] font-extrabold pb-16 mb-4 w-[80px]  translate-x-11 -translate-y-8  ">
             :
           </div>
 
           {/* SECONDS */}
           <div className="min-w-[110px]">
-            <div className="text-6xl md:text-[210px] mr-8 font-extrabold">{ss}</div>
+            <div className="text-6xl md:text-[250px] mr-8 font-extrabold">{ss}</div>
             <div className="text-sm md:text-[30px] tracking-[0.4em] mt-3 bg-white/10 rounded-xl px-4 py-2 inline-block">
               SECONDS
             </div>

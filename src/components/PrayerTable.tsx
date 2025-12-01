@@ -114,7 +114,7 @@ export default function PrayerTable({ prayerTimes }: Props) {
               </div>
 
               {/* Adhan time – large numeric display */}
-              <div className="text-4xl md:text-9xl font-mono text-right tracking-wide text-(--timenums)">
+              <div className="text-4xl md:text-[105px] font-mono text-right tracking-wide text-(--timenums)">
                 {stripAmPm(info.adhan)}
               </div>
 
