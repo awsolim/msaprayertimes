@@ -120,7 +120,7 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
 
   // --- Step 4: Render the panel with appropriate label text ---
   return (
-    <div className="h-full w-full flex items-center justify-center">
+    <div className=" h-full w-full flex items-center justify-center">
       <div className="text-center px-8 max-w-4xl w-full">
         {/* PRAYER NAME on its own line */}
     <h2 className="text-6xl md:text-[200px] font-bold text-(--next) mb-4 -translate-y-8">
@@ -133,10 +133,10 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
     </h3>
 
         {/* COUNTDOWN: HH : MM : SS with labels underneath */}
-        <div className="flex justify-center items-end gap-4 md:gap-6 font-mono mb-10">
+        <div className="-translate-x-4 flex justify-center items-end gap-4 md:gap-6 font-mono mb-10">
           {/* HOURS */}
           <div className="min-w-[110px]">
-            <div className="-translate-x-6 text-6xl md:text-[250px] font-extrabold">{hh}</div>
+            <div className="-translate-x-6 text-6xl md:text-[270px] font-extrabold">{hh}</div>
             <div className="text-sm md:text-[30px] ml-8 tracking-[0.4em] mt-3 bg-white/10 rounded-xl px-4 py-2 inline-block">
               HOURS
             </div>
@@ -149,7 +149,7 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
 
           {/* MINUTES */}
           <div className="min-w-[85px]">
-            <div className="-translate-x-3 text-6xl md:text-[250px] font-extrabold">{mm}</div>
+            <div className="-translate-x-3 text-6xl md:text-[270px] font-extrabold">{mm}</div>
             <div className="text-sm md:text-[30px] tracking-[0.4em] mt-3 bg-white/10 rounded-xl px-4 py-2 inline-block">
               MINUTES
             </div>
@@ -162,7 +162,7 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
 
           {/* SECONDS */}
           <div className="min-w-[110px]">
-            <div className="text-6xl md:text-[250px] mr-8 font-extrabold">{ss}</div>
+            <div className="text-6xl md:text-[270px] mr-8 font-extrabold">{ss}</div>
             <div className="text-sm md:text-[30px] tracking-[0.4em] mt-3 bg-white/10 rounded-xl px-4 py-2 inline-block">
               SECONDS
             </div>
