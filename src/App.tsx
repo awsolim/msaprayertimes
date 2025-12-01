@@ -1,17 +1,17 @@
 // src/App.tsx
 // Main layout:
-// - Left 40%  : Prayer table (always visible)
-// - Right 60% : Date/time + rotating right panel (normal mode)
+// - Left 45%  : Prayer table (always visible)
+// - Right 55% : Date/time + rotating right panel (normal mode)
 //               or Adhan/Iqamah overlay during phase windows.
 
-import DateTimePanel from "./components/DateTimePanel"; // top-right clock + date
-import PrayerTable from "./components/PrayerTable"; // left-side table
-import RotatingSlides from "./components/RotatingSlides"; // rotating slides for countdown/event/hadith
+import DateTimePanel from "./components/DateTimePanel"; 
+import PrayerTable from "./components/PrayerTable";
+import RotatingSlides from "./components/RotatingSlides";
 
-import usePrayerTimes from "./hooks/usePrayerTimes"; // fetches prayer times
-import usePrayerPhase from "./hooks/usePrayerPhase"; // determines normal/adhan/iqamah phase
+import usePrayerTimes from "./hooks/usePrayerTimes"; 
+import usePrayerPhase from "./hooks/usePrayerPhase";
 
-// Arabic calligraphy images for iqamah screen
+// Arabic calligraphy images
 import fajrImg from "./assets/fajr.png";
 import dhuhrImg from "./assets/dhuhr.png";
 import asrImg from "./assets/asr.png";
@@ -19,19 +19,20 @@ import maghrebImg from "./assets/maghreb.png";
 import ishaImg from "./assets/isha.png";
 
 function App() {
-  // Fetch + normalize prayer times from the Netlify function
-  const { prayerTimes, loading, error } = usePrayerTimes();
 
-  // Determine whether we are in "normal", "adhan", or "iqamah" phase,
-  // and which prayer is currently active for that phase.
-  const { phase, activePrayer } = usePrayerPhase(prayerTimes);
+  // UPDATED: usePrayerTimes now returns { data, loading, error }
+  const { data, loading, error } = usePrayerTimes();   // ← change #1
 
-  // ───────────────────────────────────────────────
-  // Adhan / Iqamah overlay (RIGHT SIDE ONLY)
-  // ───────────────────────────────────────────────
-  if (phase !== "normal" && activePrayer && prayerTimes) {
+  // Pass prayer data (can be null)
+  const { phase, activePrayer } = usePrayerPhase(data); // ← change #2
+
+
+  // ----------------------------------------------------------
+  // ADHAN / IQAMAH OVERLAY (RIGHT SIDE ONLY)
+  // ----------------------------------------------------------
+  if (phase !== "normal" && activePrayer && data) {
+
     const isAdhan = phase === "adhan";
-
     const mainTitle = isAdhan ? "Time for Adhan" : "Time for Prayer";
     const subTitle = `${activePrayer} ${isAdhan ? "Adhan" : "Iqamah"} now`;
 
@@ -41,37 +42,28 @@ function App() {
       minute: "2-digit",
     });
 
+    // Determine Arabic calligraphy image
     let arabicImg: string | null = null;
     if (phase === "iqama") {
       switch (activePrayer) {
-        case "Fajr":
-          arabicImg = fajrImg;
-          break;
-        case "Dhuhr":
-          arabicImg = dhuhrImg;
-          break;
-        case "Asr":
-          arabicImg = asrImg;
-          break;
-        case "Maghrib":
-          arabicImg = maghrebImg;
-          break;
-        case "Isha":
-          arabicImg = ishaImg;
-          break;
-        default:
-          arabicImg = null;
+        case "Fajr": arabicImg = fajrImg; break;
+        case "Dhuhr": arabicImg = dhuhrImg; break;
+        case "Asr": arabicImg = asrImg; break;
+        case "Maghrib": arabicImg = maghrebImg; break;
+        case "Isha": arabicImg = ishaImg; break;
+        default: arabicImg = null;
       }
     }
 
     return (
       <div className="h-screen w-screen bg-(image:--iqamatime-bg) text-white grid grid-cols-[45%_55%] overflow-hidden">
-        {/* LEFT SIDE: keep the normal prayer table visible */}
+
+        {/* LEFT: normal prayer table stays visible */}
         <div className="h-full bg-(--table-bg)">
-          <PrayerTable prayerTimes={prayerTimes} />
+          <PrayerTable prayerTimes={data} />
         </div>
 
-        {/* RIGHT SIDE: Adhan / Iqamah screen */}
+        {/* RIGHT: Adhan / Iqamah screen */}
         <div className="flex flex-col items-center justify-center text-center px-6">
           <div className="text-5xl md:text-7xl font-bold mb-6">
             {currentTime}
@@ -89,12 +81,7 @@ function App() {
             <img
               src={arabicImg}
               alt={activePrayer}
-              className="
-                mx-auto
-                my-10
-                w-[25rem] h-[20rem]
-                object-contain
-              "
+              className="mx-auto my-10 w-[25rem] h-[20rem] object-contain"
             />
           )}
 
@@ -102,18 +89,21 @@ function App() {
             Please maintain silence and prepare for the prayer.
           </p>
         </div>
+
       </div>
     );
   }
 
-  // ───────────────────────────────────────────────
-  // Normal layout (no adhan/iqamah overlay)
-  // ───────────────────────────────────────────────
+  // ----------------------------------------------------------
+  // NORMAL MODE LAYOUT
+  // ----------------------------------------------------------
   return (
     <div className="h-screen w-screen bg-(image:--panel-bg) text-sky-50 overflow-hidden">
       <div className="h-full grid grid-cols-[45%_55%]">
-        {/* LEFT COLUMN: Prayer table (with loading/error states) */}
+
+        {/* LEFT COLUMN — Prayer Table */}
         <div className="border-r bg-(--table-bg) border-slate-800">
+
           {loading && (
             <div className="h-full flex items-center justify-center text-sky-300 text-lg">
               Loading prayer times…
@@ -123,42 +113,43 @@ function App() {
           {!loading && error && (
             <div className="h-full flex flex-col items-center justify-center text-red-400 text-lg">
               Failed to load prayer times.
-              <span className="mt-2 text-sm opacity-80">{error}</span>
+              <span className="mt-2 text-sm opacity-80">{error.message}</span>
             </div>
           )}
 
-          {!loading && !error && prayerTimes && (
-            <PrayerTable prayerTimes={prayerTimes} />
+          {!loading && !error && data && (
+            <PrayerTable prayerTimes={data} />
           )}
         </div>
 
-        {/* RIGHT COLUMN: Date/time at top, rotating content below */}
-        {/* RIGHT COLUMN: Date/time at top, rotating content below */}
-<div className="flex flex-col h-full">
-  {/* Clock row: fixed height, doesn't shrink */}
-  <div className="px-8 mt-8 shrink-0">
-    <DateTimePanel />
-  </div>
+        {/* RIGHT COLUMN — Clock + Rotating Slides */}
+        <div className="flex flex-col h-full">
 
-  {/* Main right panel: fills remaining height, content scrolls inside it */}
-  <div className="flex-1 overflow-hidden">
-    {loading && (
-      <div className="h-full flex items-center justify-center text-sky-300 text-lg">
-        Loading…
-      </div>
-    )}
+          {/* Clock row */}
+          <div className="px-8 mt-8 shrink-0">
+            <DateTimePanel />
+          </div>
 
-    {!loading && error && (
-      <div className="h-full flex items-center justify-center text-red-400 text-lg">
-        Unable to show right panel.
-      </div>
-    )}
+          {/* Slide region */}
+          <div className="flex-1 overflow-hidden">
 
-    {!loading && !error && prayerTimes && (
-      <RotatingSlides prayerTimes={prayerTimes} />
-    )}
-  </div>
-</div>
+            {loading && (
+              <div className="h-full flex items-center justify-center text-sky-300 text-lg">
+                Loading…
+              </div>
+            )}
+
+            {!loading && error && (
+              <div className="h-full flex items-center justify-center text-red-400 text-lg">
+                Unable to show right panel.
+              </div>
+            )}
+
+            {!loading && !error && data && (
+              <RotatingSlides prayerTimes={data} />
+            )}
+          </div>
+        </div>
 
       </div>
     </div>
