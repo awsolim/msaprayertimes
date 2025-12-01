@@ -29,7 +29,7 @@ export type PrayerTimes = {
 // ------------------------------
 const PRAYER_API_URL =
   import.meta.env.VITE_PRAYER_API_URL ??
-  "https://msaprayerdisplay.vercel.app/api/prayer-times"; 
+  "https://msaprayertimes.vercel.app/api/prayer-times"; 
 // ^ Replace with YOUR exact Vercel project URL if different
 
 // ------------------------------
