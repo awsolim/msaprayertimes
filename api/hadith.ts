@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 // Use environment variables or fallback to your URL
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://czbzdvpzcfnxbezxcumm.supabase.co";
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "YOUR_SUPABASE_ANON_KEY";
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6YnpkdnB6Y2ZueGJlenhjdW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM5OTM2NzcsImV4cCI6MjA3OTU2OTY3N30.N3gh2es8YpMUgR1vZpdrauhf-MqpEjsOj1_qTOH4_gM";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Allow the Pi to access this endpoint
