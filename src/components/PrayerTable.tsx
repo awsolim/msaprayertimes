@@ -104,12 +104,12 @@ export default function PrayerTable({ prayerTimes }: Props) {
               className={
                 "flex-1 grid grid-cols-[1fr_1fr_1fr] gap-10 px-6 border-b border-(--border) items-center " +
                 (isNext
-                  ? "bg-(--active-row-bg) text-sky-100 border-l-4 border-(--active-border)"
+                  ? "bg-(image:--active-row-bg) text-sky-100 border-l-4 border-(--active-border)"
                   : "text-sky-50")
               }
             >
               {/* Prayer name – large label on the left */}
-              <div className="text-2xl md:text-4xl font-bold text-(--tabletext)">
+              <div className="text-2xl md:text-5xl font-bold text-(--tabletext)">
                 {name}
               </div>
 

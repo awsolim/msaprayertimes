@@ -15,6 +15,8 @@ import type { EventRow } from "../hooks/useEvents";
 import useHadith from "../hooks/useHadith"; // NEW: hook to load hadith from Supabase
 import type { HadithRow } from "../hooks/useHadith"; // NEW: type for hadith rows
 import qrCode from "../assets/qrcode.png"; // QR image for "Sign Up for Events" section
+import pbuhIcon from "../assets/pbuh.png";
+import locationPin from "../assets/location.png";
 
 // All possible slide types in the global rotation
 type SlideKind = "countdown" | "event" | "hadith";
@@ -32,7 +34,7 @@ const FADE_MS = 700; // 0.7 second fade duration
 const DEBUG_FREEZE = false;
 
 // Which slide to show when DEBUG_FREEZE is true
-const DEBUG_SLIDE: SlideKind = "event";
+const DEBUG_SLIDE: SlideKind = "hadith";
 
 type Props = {
   prayerTimes: PrayerTimes;
@@ -283,6 +285,9 @@ function EventSlide({ events, loading, error }: EventSlideProps) {
 
 // Single event card
 function EventCard({ event }: { event: EventRow }) {
+  // Flag to know if this is the synthetic weekly Jumuah event
+  const isJumuah = event.is_jumuah === true;
+
   return (
     <div
       className="
@@ -290,61 +295,99 @@ function EventCard({ event }: { event: EventRow }) {
         gap-6
         rounded-3xl
         bg-black/40
+        
         border border-white/25
         px-6 py-5
       "
     >
-      {/* Date badge */}
+      {/* Date badge on the left */}
       <div
         className="
           flex flex-col items-center justify-center
-          w-40
+          ml-4 
           rounded-2xl
-          bg-black/60
-          border border-white/30
-          px-6 py-5
+          bg-sky-950/80
+          border border-sky-400/60
+          px-9 py-px
         "
       >
-        <span className="text-2xl text-sky-300 font-semibold">
+        <span className="text-lg uppercase tracking-[0.2em] text-emerald-200">
           {new Intl.DateTimeFormat("en-CA", {
             timeZone: "America/Edmonton",
             weekday: "short",
-          }).format(new Date(event.start_at!))}
+          }).format(new Date(event.start_at))}
         </span>
 
         <span className="text-5xl font-extrabold text-sky-50 leading-none">
           {new Intl.DateTimeFormat("en-CA", {
             timeZone: "America/Edmonton",
             day: "numeric",
-          }).format(new Date(event.start_at!))}
+          }).format(new Date(event.start_at))}
         </span>
 
         <span className="text-2xl text-sky-300 -mt-1">
           {new Intl.DateTimeFormat("en-CA", {
             timeZone: "America/Edmonton",
             month: "short",
-          }).format(new Date(event.start_at!))}
+          }).format(new Date(event.start_at))}
         </span>
       </div>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col gap-3">
+      {/* Right column: title, location, times, description */}
+      <div className="flex-1 flex flex-col gap-3 items-center mr-12">
         <h3 className="text-3xl md:text-4xl font-bold text-sky-50">
           {event.title}
         </h3>
 
+        {/* Location line */}
         <p className="text-2xl text-sky-200 flex flex-wrap gap-3">
           {event.place && (
-            <span className="text-sky-300">📍 {event.place}</span>
+            <span className="flex items-center gap-2 text-sky-300">
+  <img
+    src={locationPin}
+    alt="Location"
+    className="w-6 h-6 object-contain inline-block"
+  />
+  {event.place}
+</span>
+
           )}
-          {event.start_at && event.end_at && (
+
+          {/* For non-Jumuah events, show single time range inline */}
+          {!isJumuah && event.start_at && event.end_at && (
             <span className="text-sky-200">
               • {formatTimeRangeEdmonton(event.start_at, event.end_at)}
             </span>
           )}
         </p>
 
-        {event.description && (
+        {/* Jumuah: show two stacked time ranges instead of description */}
+        {isJumuah && (
+          <div className="mt-1 flex flex-col gap-1 text-2xl text-sky-200">
+            {event.jumuah_first_start && event.jumuah_first_end && (
+              <div>
+                First Prayer{" "}
+                {formatTimeRangeEdmonton(
+                  event.jumuah_first_start,
+                  event.jumuah_first_end
+                )}
+              </div>
+            )}
+
+            {event.jumuah_second_start && event.jumuah_second_end && (
+              <div>
+                Second Prayer{" "}
+                {formatTimeRangeEdmonton(
+                  event.jumuah_second_start,
+                  event.jumuah_second_end
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Normal events: keep showing description */}
+        {!isJumuah && event.description && (
           <p className="text-2xl text-sky-100 leading-relaxed">
             {event.description}
           </p>
@@ -353,6 +396,7 @@ function EventCard({ event }: { event: EventRow }) {
     </div>
   );
 }
+
 
 // ─────────────────────────────
 // HADITH SLIDE (from Supabase)
@@ -398,17 +442,21 @@ function HadithSlide({ hadith, loading, error }: HadithSlideProps) {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center px-6">
       {/* NEW: Big title for hadith section */}
-      <h2 className="text-6xl md:text-7xl font-extrabold text-(--next) mb-8">
+      <h2 className="text-6xl md:text-7xl font-extrabold text-amber-100 mb-8">
         Hadith of the Day
       </h2>
 
-      <div className="max-w-4xl text-center">
-        {/* Intro line */}
-        <p className="text-3xl md:text-4xl text-sky-100 font-semibold mb-6">
-          The Messenger of Allah ﷺ said:
-        </p>
+      <p className="text-3xl md:text-4xl text-sky-100 font-semibold mb-6 flex items-center justify-center gap-3">
+  <span>The Messenger of Allah</span>
+  <img
+    src={pbuhIcon}
+    alt="ﷺ"
+    className="w-15 h-15 object-contain inline-block"
+  />
+  <span>said:</span>
+</p>
 
-        {/* Arabic text */}
+ {/* Arabic text */}
         <p className="text-4xl md:text-5xl text-(--next) leading-relaxed mb-6">
           {hadith.arabic_text}
         </p>
@@ -425,7 +473,7 @@ function HadithSlide({ hadith, loading, error }: HadithSlideProps) {
         <p className="text-lg md:text-xl text-sky-300">
           Source: {hadith.source}
         </p>
-      </div>
+
     </div>
   );
 }
@@ -435,17 +483,32 @@ function HadithSlide({ hadith, loading, error }: HadithSlideProps) {
 // ─────────────────────────────
 
 function formatTimeRangeEdmonton(startIso: string, endIso: string): string {
-  const start = new Intl.DateTimeFormat("en-CA", {
+  // Parse the incoming ISO strings into Date objects
+  const startDate = new Date(startIso); // Date for start
+  const endDate = new Date(endIso);     // Date for end
+
+  // If either date is invalid, avoid throwing and just log + return blank
+  if (
+    Number.isNaN(startDate.getTime()) ||
+    Number.isNaN(endDate.getTime())
+  ) {
+    console.error("formatTimeRangeEdmonton: invalid dates", {
+      startIso,
+      endIso,
+    });
+    return ""; // UI will just not show a range instead of crashing
+  }
+
+  // Reuse a formatter in Edmonton time for both start and end
+  const formatter = new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Edmonton",
     hour: "numeric",
     minute: "2-digit",
-  }).format(new Date(startIso));
+  });
 
-  const end = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Edmonton",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(endIso));
+  const start = formatter.format(startDate); // pretty start time
+  const end = formatter.format(endDate);     // pretty end time
 
-  return `${start} – ${end}`;
+  return `${start} – ${end}`; // "12:20 PM – 1:30 PM"
 }
+

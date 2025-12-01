@@ -82,7 +82,7 @@ function loadIqamahConfig(): IqamahConfig {
       rules: {
         Fajr: { type: "offset", minutes: 30 },
         Sunrise: { type: "none" },
-        Dhuhr: { type: "fixed", time: "13:30" },
+        Dhuhr: { type: "fixed", time: "13:00" },
         Asr: { type: "offset", minutes: 5 },
         Maghrib: { type: "offset", minutes: 5 },
         Isha: { type: "fixed", time: "21:30" },
