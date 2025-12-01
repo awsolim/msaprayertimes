@@ -3,7 +3,7 @@
 // NOTE: vertical position is controlled by the parent container in App.tsx.
 
 import useNow from "../hooks/useNow"; // custom hook returning a Date that updates regularly
-import msalogo from "../assets/msalogo.png"; // MSA logo shown next to the time
+//import msalogo from "../assets/msalogo.png"; // MSA logo shown next to the time
 
 export default function DateTimePanel() {
   const now = useNow(1000); // update every second
