@@ -3,32 +3,38 @@
 
 /* Green With Red */
 
-  /* :root {
+   :root {
   --panel-bg: radial-gradient(circle at 20% 0%, #071b15, #06261b 40%, #0d3f2a);
   --table-bg: linear-gradient(180deg, #215b38, #15402a);
   --active-row-bg: #5d1d32;
+  --active-row-bg: linear-gradient(
+    90deg,
+    #5d1d32 0%,    
+    #521328 40%, 
+    #42091c 100%   
+  );
   --iqamatime-bg: radial-gradient(circle at center, #1d2321, #0b0a1b, #1d0723);
 
   --current-time: #ffe9a8;
-  --next: #e3d583;
+  --next: #ffe9a8;
   --timenums: #ffffff;
   --tabletext: #eafaf1;
 
   --border: #215b38;
   --active-border: rgba(255, 255, 255, 0.08);
-}    */
+}    
 
+/*
 :root {
-  /* === MAIN BACKGROUND PANEL === */
+  
   --panel-bg: radial-gradient(
     circle at top,
-    #06144c 0%,     /* nearly-black royal navy */
-    #020825 30%,    /* deep indigo */
-    #071a3d 70%,    /* rich royal blue */
+    #06144c 0%,    
+    #020825 30%,    
+    #071a3d 70%,    
     #020825 100%
   );
 
-  /* === LEFT TABLE BG === */
   --table-bg: linear-gradient(
     180deg,
     #0a2a5e 0%,
@@ -36,32 +42,31 @@
     #030b2b 100%
   );
 
-  /* === ACTIVE ROW HIGHLIGHT (SHINY GOLD) === */
   --active-row-bg: linear-gradient(
     90deg,
-    rgba(255,223,94,0.35) 0%,     /* bright warm gold */
-    #ffdc8273 40%,   /* shiny mid gold */
-    rgba(255,196,61,0.30) 100%    /* slightly dim edge fade */
+    rgba(255,223,94,0.35) 0%,    
+    #ffdc8273 40%,  
+    rgba(255,196,61,0.30) 100%    
   );
 
-  /* === IQAMAH FLASH SCREEN (BRIGHT GOLD BURST) === */
+ 
   --iqamatime-bg: radial-gradient(
     circle at center,
-    #231e08 0%,      /* brilliant bright gold */
-    #31280b 25%,     /* vivid gold */
-    #2c230b 45%,     /* amber gold */
-    #1f1807 70%,     /* deep metallic shadow */
-    #020817 100%     /* fade into navy */
+    #231e08 0%,     
+    #31280b 25%,    
+    #2c230b 45%,    
+    #1f1807 70%,     
+    #020817 100%    
   );
 
-  /* === TEXT COLORS === */
-  --current-time: #f9eebb;   /* light brilliant gold */
-  --next: #f9eebb;           /* bright true gold */
-  --timenums: #ffffff;       /* crisp white for numbers */
-  --tabletext: #e3e8f5;      /* pale bluish white */
 
-  /* === BORDERS === */
-  --border: rgba(25, 35, 70, 0.85); /* deep cold blue */
+  --current-time: #f9eebb;   
+  --next: #f9eebb;           
+  --timenums: #ffffff;       
+  --tabletext: #e3e8f5;      
+
+
+  --border: rgba(25, 35, 70, 0.85); 
   --active-border: linear-gradient(
     90deg,
     #ffe98a,
@@ -69,7 +74,7 @@
     #fbbf24
   );
 }
-
+*/
 
 
 /*
