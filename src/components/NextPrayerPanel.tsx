@@ -133,7 +133,7 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
     </h3>
 
         {/* COUNTDOWN: HH : MM : SS with labels underneath */}
-        <div className=" -translate-x-5 flex justify-center items-end gap-4 md:gap-6 font-mono mb-10">
+        <div className="flex justify-center items-end gap-4 md:gap-6 font-mono mb-10">
           {/* HOURS */}
           <div className="min-w-[110px]">
             <div className="-translate-x-11 text-6xl md:text-[200px] font-extrabold">{hh}</div>
@@ -143,7 +143,7 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
           </div>
 
           {/* Colon between hours and minutes */}
-          <div className="text-5xl md:text-[150px] font-extrabold w-[200px] pb-16 translate-x-11 -translate-y-8 mb-4">
+          <div className="text-5xl md:text-[150px] font-extrabold w-[200px] pb-16 translate-x-3 -translate-y-8 mb-4">
             :
           </div>
 
@@ -156,7 +156,7 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
           </div>
 
           {/* Colon between minutes and seconds */}
-          <div className="text-5xl md:text-[150px] font-extrabold pb-16 mb-4 w-[200px] ml-4 translate-x-12 -translate-y-8  ">
+          <div className="text-5xl md:text-[150px] font-extrabold pb-16 mb-4 w-[200px] ml-4 translate-x-4 -translate-y-8  ">
             :
           </div>
 
