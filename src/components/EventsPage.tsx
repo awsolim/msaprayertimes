@@ -154,7 +154,7 @@ export default function EventsPage() {
               </div>
 
               {/* Main content on the right */}
-              <div className="flex-1 flex flex-col gap-1">
+              <div className="-translate-x-5 flex-1 flex flex-col gap-1">
                 {/* Title */}
                 <h3 className="text-2xl font-semibold text-sky-50">
                   {event.title}
@@ -162,7 +162,7 @@ export default function EventsPage() {
 
                 {/* Place */}
                 {event.place && (
-                  <p className="text-sm text-sky-300">
+                  <p className="text-sm  text-sky-300">
                     📍 {event.place}
                   </p>
                 )}

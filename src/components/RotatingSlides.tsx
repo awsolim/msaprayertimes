@@ -31,10 +31,10 @@ const DURATION = 10000; // 10 seconds per slide so event slide can show 2 pages
 const FADE_MS = 400; // 0.7 second fade duration
 
 // Debug freeze mode: when true, disable rotation and lock onto one slide
-const DEBUG_FREEZE = false;
+const DEBUG_FREEZE = true;
 
 // Which slide to show when DEBUG_FREEZE is true
-const DEBUG_SLIDE: SlideKind = "countdown";
+const DEBUG_SLIDE: SlideKind = "event";
 
 type Props = {
   prayerTimes: PrayerTimes;
@@ -457,20 +457,20 @@ function HadithSlide({ hadith, loading, error }: HadithSlideProps) {
 </p>
 
  {/* Arabic text */}
-        <p className="text-4xl md:text-5xl text-(--next) leading-relaxed mb-6">
+        <p className="text-4xl md:text-7xl text-(--next) leading-relaxed mb-6">
           {hadith.arabic_text}
         </p>
 
         {/* English translation */}
-        <p className="text-center text-2xl md:text-3xl text-sky-100 leading-relaxed mb-8">
+        <p className="text-center text-2xl md:text-5xl text-sky-100 leading-relaxed mb-8">
           {hadith.english_text}
         </p>
 
         {/* Narrator and source */}
-        <p className="text-xl md:text-2xl text-sky-200 mb-1">
+        <p className="text-xl md:text-4xl text-sky-200 mb-1">
           Narrated by: {hadith.narrator}
         </p>
-        <p className="text-lg md:text-xl text-sky-300">
+        <p className="text-lg md:text-4l text-sky-300">
           Source: {hadith.source}
         </p>
 

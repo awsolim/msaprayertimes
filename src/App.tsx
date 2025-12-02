@@ -85,7 +85,7 @@ function App() {
             />
           )}
 
-          <p className="text-xl md:text-2xl text-slate-400 mt-6">
+          <p className="text-xl md:text-6xl text-slate-400 mt-6">
             Please maintain silence and prepare for the prayer.
           </p>
         </div>
