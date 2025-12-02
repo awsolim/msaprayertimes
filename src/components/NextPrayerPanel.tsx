@@ -133,7 +133,7 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
     </h3>
 
         {/* COUNTDOWN: HH : MM : SS with labels underneath */}
-        <div className=" -translate-x-10 flex justify-center items-end gap-4 md:gap-6 font-mono mb-10">
+        <div className=" -translate-x-5 flex justify-center items-end gap-4 md:gap-6 font-mono mb-10">
           {/* HOURS */}
           <div className="min-w-[110px]">
             <div className="-translate-x-11 text-6xl md:text-[200px] font-extrabold">{hh}</div>
