@@ -1,79 +1,97 @@
 // src/hooks/useJumuah.ts
-// Fetch the active Jumuah settings from Supabase and refresh occasionally.
+// Fetch the active Jumuah settings from Supabase.
+// Refreshes only once per day (at midnight) to save API calls.
 
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
-// Shape of the row in "jumuah_settings"
 export type JumuahSettings = {
-  id: string;                   // unique ID for this settings row
-  title: string;                // e.g. "Jumuah on Campus"
-  place: string | null;         // location (optional)
-  description: string | null;   // text that includes both prayer times
-  weekday: number;              // 0=Sunday ... 5=Friday
-  first_start: string;          // "HH:MM:SS" (Postgres time)
-  first_end: string;            // "HH:MM:SS"
-  second_start: string | null;  // "HH:MM:SS" or null if only one khutbah
-  second_end: string | null;    // "HH:MM:SS" or null
-  is_active: boolean;           // whether this settings row is in use
-  updated_at: string;           // last time settings were changed
+  id: string;
+  title: string;
+  place: string | null;
+  description: string | null;
+  weekday: number;
+  first_start: string;
+  first_end: string;
+  second_start: string | null;
+  second_end: string | null;
+  is_active: boolean;
+  updated_at: string;
 };
 
-// Gentle polling interval (ms) – same spirit as events hook
-const POLL_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
-
 export default function useJumuah() {
-  const [jumuah, setJumuah] = useState<JumuahSettings | null>(null); // holds settings row
-  const [loading, setLoading] = useState(true);                       // loading flag
-  const [error, setError] = useState<string | null>(null);           // error message, if any
+  const [jumuah, setJumuah] = useState<JumuahSettings | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    let isCancelled = false;        // prevents state updates after unmount
-    let intervalId: number | null = null; // stores polling timer ID
+    let isCancelled = false;
+    let timerId: number | undefined;
 
     const fetchJumuah = async () => {
-      // start loading state for this fetch
-      setLoading(true);
-
-      const { data, error } = await supabase
-        .from("jumuah_settings")        // table name in Supabase
-        .select("*")                    // grab all columns
-        .eq("is_active", true)          // only active config
-        .order("updated_at", { ascending: false }) // newest row first
-        .limit(1)                       // we only care about one
-        .maybeSingle();                 // return row or null
-
-      // stop if component using this hook has unmounted
       if (isCancelled) return;
+      
+      try {
+        setLoading(true);
+        console.log("Fetching Jumuah settings...");
 
-      if (error) {
-        // store the error so UI can show a message
-        setError(error.message);
-      } else {
-        // clear previous error (if any) and store the row
-        setError(null);
-        setJumuah(data ?? null);
+        const { data, error } = await supabase
+          .from("jumuah_settings")
+          .select("*")
+          .eq("is_active", true)
+          .order("updated_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (isCancelled) return;
+
+        if (error) {
+          setError(error.message);
+        } else {
+          setError(null);
+          setJumuah(data ?? null);
+        }
+      } catch (err: any) {
+        if (!isCancelled) setError(err.message);
+      } finally {
+        if (!isCancelled) setLoading(false);
       }
 
-      // mark loading done for this round
-      setLoading(false);
+      // Schedule the next refresh for the upcoming midnight
+      scheduleNextRefresh();
     };
 
-    // initial fetch when component mounts
+    const scheduleNextRefresh = () => {
+      const now = new Date();
+      // Calculate time until next midnight (00:00:05 am to be safe)
+      const nextMidnight = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + 1,
+        0,
+        0,
+        5
+      );
+      const msUntil = nextMidnight.getTime() - now.getTime();
+
+      // Clear any existing timer just in case
+      if (timerId) clearTimeout(timerId);
+
+      // Set timer to fetch again tomorrow
+      timerId = window.setTimeout(() => {
+        fetchJumuah();
+      }, msUntil);
+    };
+
+    // Initial fetch
     fetchJumuah();
 
-    // set up background polling to pick up changes
-    intervalId = window.setInterval(fetchJumuah, POLL_INTERVAL_MS);
-
-    // cleanup when component unmounts
+    // Cleanup on unmount
     return () => {
-      isCancelled = true;                   // block late state updates
-      if (intervalId !== null) {
-        window.clearInterval(intervalId);   // stop polling timer
-      }
+      isCancelled = true;
+      if (timerId) clearTimeout(timerId);
     };
-  }, []); // empty deps → run once on mount
+  }, []);
 
-  // expose settings, loading, and error to callers
   return { jumuah, loading, error };
 }
