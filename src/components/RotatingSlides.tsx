@@ -31,7 +31,7 @@ const DURATION = 10000; // 10 seconds per slide so event slide can show 2 pages
 const FADE_MS = 400; // 0.7 second fade duration
 
 // Debug freeze mode: when true, disable rotation and lock onto one slide
-const DEBUG_FREEZE = true;
+const DEBUG_FREEZE = false;
 
 // Which slide to show when DEBUG_FREEZE is true
 const DEBUG_SLIDE: SlideKind = "countdown";
@@ -343,13 +343,13 @@ function EventCard({ event }: { event: EventRow }) {
         <p className="text-2xl text-sky-200 flex flex-wrap gap-3">
           {event.place && (
             <span className="flex items-center gap-2 text-sky-300">
-  <img
-    src={locationPin}
-    alt="Location"
-    className="w-6 h-6 object-contain inline-block"
-  />
-  {event.place}
-</span>
+              <img
+                src={locationPin}
+                alt="Location"
+                className="w-6 h-6 object-contain inline-block"
+              />
+              {event.place}
+            </span>
 
           )}
 
@@ -447,32 +447,32 @@ function HadithSlide({ hadith, loading, error }: HadithSlideProps) {
       </h2>
 
       <p className="text-3xl md:text-4xl text-sky-100 font-semibold mb-6 flex items-center justify-center gap-3">
-  <span>The Messenger of Allah</span>
-  <img
-    src={pbuhIcon}
-    alt="ﷺ"
-    className="w-15 h-15 object-contain inline-block"
-  />
-  <span>said:</span>
-</p>
+        <span>The Messenger of Allah</span>
+        <img
+          src={pbuhIcon}
+          alt="ﷺ"
+          className="w-15 h-15 object-contain inline-block"
+        />
+        <span>said:</span>
+      </p>
 
- {/* Arabic text */}
-        <p className="text-4xl md:text-7xl text-(--next) leading-relaxed mb-6">
-          {hadith.arabic_text}
-        </p>
+      {/* Arabic text */}
+      <p className="text-4xl md:text-7xl text-(--next) leading-relaxed mb-6">
+        {hadith.arabic_text}
+      </p>
 
-        {/* English translation */}
-        <p className="text-center text-2xl md:text-5xl text-sky-100 leading-relaxed mb-8">
-          {hadith.english_text}
-        </p>
+      {/* English translation */}
+      <p className="text-center text-2xl md:text-5xl text-sky-100 leading-relaxed mb-8">
+        {hadith.english_text}
+      </p>
 
-        {/* Narrator and source */}
-        <p className="text-xl md:text-4xl text-sky-200 mb-1">
-          Narrated by: {hadith.narrator}
-        </p>
-        <p className="text-lg md:text-4l text-sky-300">
-          Source: {hadith.source}
-        </p>
+      {/* Narrator and source */}
+      <p className="text-xl md:text-4xl text-sky-200 mb-1">
+        Narrated by: {hadith.narrator}
+      </p>
+      <p className="text-lg md:text-4l text-sky-300">
+        Source: {hadith.source}
+      </p>
 
     </div>
   );
