@@ -22,145 +22,109 @@ import locationPin from "../assets/location.png";
 // All possible slide types in the global rotation
 type SlideKind = "countdown" | "event" | "hadith";
 
-// Ordered list of slides we rotate through
-const SLIDES: SlideKind[] = ["countdown", "event", "hadith"];
-
-// How long each slide stays fully visible before transitioning (ms)
-const DURATION = 10000; // 10 seconds per slide so event slide can show 2 pages
-
-// How long the fade animation lasts (ms)
-const FADE_MS = 400; // 0.7 second fade duration
-
+// ─────────────────────────────────────────────
+// CONFIGURATION
+// ─────────────────────────────────────────────
 // Debug freeze mode: when true, disable rotation and lock onto one slide
 const DEBUG_FREEZE = false;
 
 // Which slide to show when DEBUG_FREEZE is true
 const DEBUG_SLIDE: SlideKind = "countdown";
 
+
+
 type Props = {
   prayerTimes: PrayerTimes;
 };
 
 export default function RotatingSlides({ prayerTimes }: Props) {
-  const [index, setIndex] = useState(0);
-  const [fadeStage, setFadeStage] = useState<"in" | "out">("in");
+  // Use the central useNow hook to get standard time (synced to seconds)
+  const now = useNow();
+  const seconds = now.getSeconds();
 
-  // Events from Supabase (already set up elsewhere)
+  // ─────────────────────────────────────────────
+  // CLOCK-SYNCED ROTATION
+  // The user wants specific content at specific 10-second slots of the minute.
+  // 00-10: Events
+  // 10-20: Countdown
+  // 20-30: Hadith
+  // 30-40: Events
+  // 40-50: Countdown
+  // 50-60: Countdown (Critical Override)
+  // ─────────────────────────────────────────────
+
+  const slot = Math.floor(seconds / 10); // 0..5
+
+  let activeSlide: SlideKind = "countdown"; // default safety
+
+  switch (slot) {
+    case 0: // :00 - :09
+      activeSlide = "event";
+      break;
+    case 1: // :10 - :19
+      activeSlide = "countdown";
+      break;
+    case 2: // :20 - :29
+      activeSlide = "hadith";
+      break;
+    case 3: // :30 - :39
+      activeSlide = "event";
+      break;
+    case 4: // :40 - :49
+      activeSlide = "countdown";
+      break;
+    case 5: // :50 - :59
+      activeSlide = "countdown";
+      break;
+  }
+
+  // Debug freeze overrules everything
+  if (DEBUG_FREEZE) {
+    activeSlide = DEBUG_SLIDE;
+  }
+
+  // Events from Supabase
   const {
     events,
     loading: loadingEvents,
     error: eventsError,
   } = useEvents();
 
-  // NEW: Hadith-of-the-day from Supabase, loaded once here
+  // Hadith-of-the-day from Supabase
   const {
     hadith,
     loading: loadingHadith,
     error: hadithError,
-  } = useHadith(); // NEW: central place where hadith is fetched and cached
+  } = useHadith();
 
-  // ─────────────────────────────────────────────
-  // DEBUG FREEZE: lock onto a specific slide, no rotation or fading
-  // ─────────────────────────────────────────────
-  if (DEBUG_FREEZE) {
-    const activeSlide: SlideKind = DEBUG_SLIDE;
-
-    return (
-      <div className="w-full h-full flex flex-col items-center justify-center">
-        {activeSlide === "countdown" && (
+  return (
+    <div
+      className="w-full h-full relative flex flex-col items-center justify-center overflow-y-auto"
+    >
+      {activeSlide === "countdown" && (
+        <div className="w-full h-full animate-in fade-in zoom-in duration-500">
           <NextPrayerPanel prayerTimes={prayerTimes} />
-        )}
+        </div>
+      )}
 
-        {activeSlide === "event" && (
+      {activeSlide === "event" && (
+        <div className="w-full h-full animate-in fade-in zoom-in duration-500">
           <EventSlide
             events={events}
             loading={loadingEvents}
             error={eventsError}
           />
-        )}
+        </div>
+      )}
 
-        {activeSlide === "hadith" && (
+      {activeSlide === "hadith" && (
+        <div className="w-full h-full animate-in fade-in zoom-in duration-500">
           <HadithSlide
-            hadith={hadith}          // NEW: pass hadith data down
-            loading={loadingHadith}  // NEW: pass loading flag
-            error={hadithError}      // NEW: pass error message
+            hadith={hadith}
+            loading={loadingHadith}
+            error={hadithError}
           />
-        )}
-      </div>
-    );
-  }
-
-  // ─────────────────────────────────────────────
-  // NORMAL MODE: automatic rotation + fading
-  // ─────────────────────────────────────────────
-
-  useEffect(() => {
-    let timeoutId: number | undefined;
-
-    const startTransition = () => {
-      setFadeStage("out");
-
-      timeoutId = window.setTimeout(() => {
-        setIndex((prev) => (prev + 1) % SLIDES.length);
-        setFadeStage("in");
-      }, FADE_MS);
-    };
-
-    const intervalId = window.setInterval(startTransition, DURATION);
-
-    return () => {
-      window.clearInterval(intervalId);
-      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
-    };
-  }, []);
-
-  // ─────────────────────────────────────────────
-  // CRITICAL OVERRIDE: 
-  // If we are in the last 10 seconds of a minute (xx:xx:50 - xx:xx:59),
-  // FORCE the display to be the Countdown, so users can see the minute flip.
-  // ─────────────────────────────────────────────
-  const now = useNow();
-  const seconds = now.getSeconds();
-  const isCriticalTime = seconds >= 50;
-
-  // Determine which slide to show
-  // If critical time -> force "countdown"
-  // Else -> use the rotating index
-  const slideFromIndex: SlideKind = isCriticalTime ? "countdown" : SLIDES[index];
-
-  // Determine opacity
-  // If critical time -> force full opacity (no fading out)
-  // Else -> utilize the fade transition state
-  const opacityClass = (isCriticalTime || fadeStage === "in") ? "opacity-100" : "opacity-0";
-
-  return (
-    <div
-      className={
-        "w-full h-full relative " +
-        "flex flex-col items-center justify-center " +
-        "transition-opacity duration-700 ease-out " +
-        "overflow-y-auto " + // content scrolls inside right panel only
-        opacityClass
-      }
-    >
-      {slideFromIndex === "countdown" && (
-        <NextPrayerPanel prayerTimes={prayerTimes} />
-      )}
-
-      {slideFromIndex === "event" && (
-        <EventSlide
-          events={events}
-          loading={loadingEvents}
-          error={eventsError}
-        />
-      )}
-
-      {slideFromIndex === "hadith" && (
-        <HadithSlide
-          hadith={hadith}          // NEW: use Supabase hadith in normal mode
-          loading={loadingHadith}
-          error={hadithError}
-        />
+        </div>
       )}
     </div>
   );
