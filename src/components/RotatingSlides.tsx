@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import type { PrayerTimes } from "../hooks/usePrayerTimes";
 import NextPrayerPanel from "./NextPrayerPanel";
 import useEvents from "../hooks/useEvents";
+import useNow from "../hooks/useNow"; // NEW: needed for 50s override check
 import type { EventRow } from "../hooks/useEvents";
 import useHadith from "../hooks/useHadith"; // NEW: hook to load hadith from Supabase
 import type { HadithRow } from "../hooks/useHadith"; // NEW: type for hadith rows
@@ -113,8 +114,24 @@ export default function RotatingSlides({ prayerTimes }: Props) {
     };
   }, []);
 
-  const slideFromIndex: SlideKind = SLIDES[index];
-  const opacityClass = fadeStage === "in" ? "opacity-100" : "opacity-0";
+  // ─────────────────────────────────────────────
+  // CRITICAL OVERRIDE: 
+  // If we are in the last 10 seconds of a minute (xx:xx:50 - xx:xx:59),
+  // FORCE the display to be the Countdown, so users can see the minute flip.
+  // ─────────────────────────────────────────────
+  const now = useNow();
+  const seconds = now.getSeconds();
+  const isCriticalTime = seconds >= 50;
+
+  // Determine which slide to show
+  // If critical time -> force "countdown"
+  // Else -> use the rotating index
+  const slideFromIndex: SlideKind = isCriticalTime ? "countdown" : SLIDES[index];
+
+  // Determine opacity
+  // If critical time -> force full opacity (no fading out)
+  // Else -> utilize the fade transition state
+  const opacityClass = (isCriticalTime || fadeStage === "in") ? "opacity-100" : "opacity-0";
 
   return (
     <div
