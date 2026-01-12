@@ -58,22 +58,22 @@ export default function RotatingSlides({ prayerTimes }: Props) {
 
   switch (slot) {
     case 0: // :00 - :09
-      targetSlide = "countdown";
+      targetSlide = "hadith";
       break;
     case 1: // :10 - :19
       targetSlide = "event";
       break;
     case 2: // :20 - :29
-      targetSlide = "hadith";
+      targetSlide = "countdown";
       break;
     case 3: // :30 - :39
-      targetSlide = "countdown";
+      targetSlide = "hadith";
       break;
     case 4: // :40 - :49
       targetSlide = "event";
       break;
     case 5: // :50 - :59
-      targetSlide = "hadith";
+      targetSlide = "countdown";
       break;
   }
 
