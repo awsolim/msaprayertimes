@@ -54,6 +54,10 @@ const corsHeaders: Record<string, string> = {
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   // Headers we allow from browsers
   "Access-Control-Allow-Headers": "Content-Type",
+  // Disable caching entirely
+  "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+  "Pragma": "no-cache",
+  "Expires": "0",
 };
 
 // Helper: parse IQAMAH_CONFIG env var or fall back to sensible defaults
@@ -182,8 +186,15 @@ export default async function handler(
     });
     res.setHeader("Content-Type", "application/json");
 
-    // Fetch upstream adhan times JSON
-    const upstreamRes = await fetch(UPSTREAM_URL);
+    // Fetch upstream adhan times JSON with cache busting
+    // Add fallback for when UPSTREAM_URL already has query params? (It doesn't here)
+    const url = `${UPSTREAM_URL}?t=${Date.now()}`;
+    const upstreamRes = await fetch(url, {
+      headers: {
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache"
+      }
+    });
 
     if (!upstreamRes.ok) {
       // Forward upstream error with JSON body

@@ -38,7 +38,16 @@ const PRAYER_API_URL =
 async function fetchPrayerTimes(): Promise<PrayerTimes> {
   console.log("Fetching prayer times from:", PRAYER_API_URL);
 
-  const res = await fetch(PRAYER_API_URL, { method: "GET" });
+  // Add timestamp to query to bypass browser/CDN cache
+  const url = `${PRAYER_API_URL}?t=${Date.now()}`;
+  const res = await fetch(url, {
+    method: "GET",
+    cache: "no-store",
+    headers: {
+      "Pragma": "no-cache",
+      "Cache-Control": "no-cache"
+    }
+  });
 
   if (!res.ok) {
     throw new Error(`HTTP ${res.status} | Failed to fetch prayer times`);
