@@ -32,7 +32,6 @@ const DEBUG_FREEZE = false;
 const DEBUG_SLIDE: SlideKind = "countdown";
 
 
-
 type Props = {
   prayerTimes: PrayerTimes;
 };
@@ -55,33 +54,65 @@ export default function RotatingSlides({ prayerTimes }: Props) {
 
   const slot = Math.floor(seconds / 10); // 0..5
 
-  let activeSlide: SlideKind = "countdown"; // default safety
+  let targetSlide: SlideKind = "countdown"; // default safety
 
   switch (slot) {
     case 0: // :00 - :09
-      activeSlide = "event";
+      targetSlide = "event";
       break;
     case 1: // :10 - :19
-      activeSlide = "countdown";
+      targetSlide = "countdown";
       break;
     case 2: // :20 - :29
-      activeSlide = "hadith";
+      targetSlide = "hadith";
       break;
     case 3: // :30 - :39
-      activeSlide = "event";
+      targetSlide = "event";
       break;
     case 4: // :40 - :49
-      activeSlide = "countdown";
+      targetSlide = "countdown";
       break;
     case 5: // :50 - :59
-      activeSlide = "countdown";
+      targetSlide = "countdown";
       break;
   }
 
   // Debug freeze overrules everything
   if (DEBUG_FREEZE) {
-    activeSlide = DEBUG_SLIDE;
+    targetSlide = DEBUG_SLIDE;
   }
+
+  // State to manage the fade transition
+  // We don't render 'targetSlide' directly; we render 'visibleSlide'
+  const [visibleSlide, setVisibleSlide] = useState<SlideKind>(targetSlide);
+  const [fadeStage, setFadeStage] = useState<"in" | "out">("in");
+
+  useEffect(() => {
+    // If we're already showing the right slide, ensure we're faded in
+    if (visibleSlide === targetSlide) {
+      setFadeStage("in");
+      return;
+    }
+
+    // Otherwise, we need to transition: Fade Out -> Switch -> Fade In
+    setFadeStage("out");
+
+    const timeoutId = setTimeout(() => {
+      setVisibleSlide(targetSlide);
+      // The fade-in will be triggered by the next render cycle's if-check above,
+      // but to be safe and explicit, we can schedule it.
+      // However, just changing visibleSlide to targetSlide will cause a re-render.
+      // In that re-render, the first `if` block will run, setting `fadeStage` to "in".
+      // But setting state during render is bad practice.
+      // Better to rely on a separate effect or just timeout logic.
+      // Let's keep it simple: wait a tick then fade in.
+      requestAnimationFrame(() => {
+        setFadeStage("in");
+      });
+    }, 500); // Wait 500ms for fade out to complete
+
+    return () => clearTimeout(timeoutId);
+  }, [targetSlide, visibleSlide]);
 
   // Events from Supabase
   const {
@@ -97,34 +128,34 @@ export default function RotatingSlides({ prayerTimes }: Props) {
     error: hadithError,
   } = useHadith();
 
+  const opacityClass = fadeStage === "in" ? "opacity-100" : "opacity-0";
+
   return (
     <div
-      className="w-full h-full relative flex flex-col items-center justify-center overflow-y-auto"
+      className={
+        "w-full h-full relative flex flex-col items-center justify-center overflow-y-auto " +
+        "transition-opacity duration-500 ease-in-out " +
+        opacityClass
+      }
     >
-      {activeSlide === "countdown" && (
-        <div className="w-full h-full animate-in fade-in zoom-in duration-500">
-          <NextPrayerPanel prayerTimes={prayerTimes} />
-        </div>
+      {visibleSlide === "countdown" && (
+        <NextPrayerPanel prayerTimes={prayerTimes} />
       )}
 
-      {activeSlide === "event" && (
-        <div className="w-full h-full animate-in fade-in zoom-in duration-500">
-          <EventSlide
-            events={events}
-            loading={loadingEvents}
-            error={eventsError}
-          />
-        </div>
+      {visibleSlide === "event" && (
+        <EventSlide
+          events={events}
+          loading={loadingEvents}
+          error={eventsError}
+        />
       )}
 
-      {activeSlide === "hadith" && (
-        <div className="w-full h-full animate-in fade-in zoom-in duration-500">
-          <HadithSlide
-            hadith={hadith}
-            loading={loadingHadith}
-            error={hadithError}
-          />
-        </div>
+      {visibleSlide === "hadith" && (
+        <HadithSlide
+          hadith={hadith}
+          loading={loadingHadith}
+          error={hadithError}
+        />
       )}
     </div>
   );
@@ -492,4 +523,3 @@ function formatTimeRangeEdmonton(startIso: string, endIso: string): string {
 
   return `${start} – ${end}`; // "12:20 PM – 1:30 PM"
 }
-
