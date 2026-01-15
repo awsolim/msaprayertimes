@@ -82,7 +82,7 @@ export default function EventsPage() {
     <div className="p-8 space-y-10">
       {/* Section: 3 most upcoming events */}
       <section>
-        <h1 className="text-4xl font-bold text-(--next) mb-4">
+        <h1 className="text-4xl font-bold text-(--next) mb-4 text-center">
           Upcoming Highlights
         </h1>
         <div className="grid md:grid-cols-3 gap-6">
@@ -122,7 +122,7 @@ export default function EventsPage() {
 
       {/* Section: calendar-style list of all upcoming events */}
       <section>
-        <h2 className="text-3xl font-bold text-sky-100 mb-4">
+        <h2 className="text-3xl font-bold text-sky-100 mb-4 text-center">
           All Upcoming Events
         </h2>
         <div className="space-y-3">
