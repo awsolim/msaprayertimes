@@ -347,7 +347,7 @@ function EventCard({ event }: { event: EventRow }) {
 
       {/* Right column: title, location, times, description */}
       <div className="flex-1 flex flex-col gap-3 items-center mr-12">
-        <h3 className="text-3xl md:text-4xl font-bold text-sky-50">
+        <h3 className="text-3xl md:text-4xl font-bold text-sky-50 text-center">
           {event.title}
         </h3>
 
