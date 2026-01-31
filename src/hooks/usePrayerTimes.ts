@@ -29,7 +29,7 @@ export type PrayerTimes = {
 // ------------------------------
 const PRAYER_API_URL =
   import.meta.env.VITE_PRAYER_API_URL ??
-  "https://msaprayertimes.vercel.app/api/prayer-times"; 
+  "https://msaprayertimes.vercel.app/api/prayer-times";
 // ^ Replace with YOUR exact Vercel project URL if different
 
 // ------------------------------
@@ -84,7 +84,7 @@ export default function usePrayerTimes() {
 
     load();
 
-    // Refresh once at midnight
+    // Force a full page reload at midnight to ensure fresh state/data
     const scheduleMidnightRefresh = () => {
       const next = new Date(
         now.getFullYear(),
@@ -95,7 +95,10 @@ export default function usePrayerTimes() {
         2
       ).getTime();
       const msUntil = next - Date.now();
-      return setTimeout(load, msUntil);
+
+      return setTimeout(() => {
+        window.location.reload();
+      }, msUntil);
     };
 
     const timer = scheduleMidnightRefresh();

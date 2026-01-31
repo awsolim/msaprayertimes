@@ -469,7 +469,7 @@ function HadithSlide({ hadith, loading, error }: HadithSlideProps) {
       </p>
 
       {/* Arabic text */}
-      <p className="text-4xl md:text-7xl text-(--next) leading-relaxed mb-6">
+      <p className="text-center text-4xl md:text-7xl text-(--next) leading-relaxed mb-6">
         {hadith.arabic_text}
       </p>
 
