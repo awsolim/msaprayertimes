@@ -71,7 +71,7 @@ function loadIqamahConfig(): IqamahConfig {
       rules: {
         Fajr: { type: "offset", minutes: 30 }, // adhan + 30
         Sunrise: { type: "none" }, // no iqamah
-        Dhuhr: { type: "fixed", time: "13:30" }, // 1:30 PM
+        Dhuhr: { type: "fixed", time: "14:00" }, // 2:00 PM
         Asr: { type: "offset", minutes: 5 }, // adhan + 5
         Maghrib: { type: "offset", minutes: 5 }, // adhan + 5
         Isha: { type: "fixed", time: "21:30" }, // 9:30 PM
@@ -90,7 +90,7 @@ function loadIqamahConfig(): IqamahConfig {
       rules: {
         Fajr: { type: "offset", minutes: 30 },
         Sunrise: { type: "none" },
-        Dhuhr: { type: "fixed", time: "13:00" },
+        Dhuhr: { type: "fixed", time: "14:00" },
         Asr: { type: "offset", minutes: 5 },
         Maghrib: { type: "offset", minutes: 5 },
         Isha: { type: "fixed", time: "21:30" },
