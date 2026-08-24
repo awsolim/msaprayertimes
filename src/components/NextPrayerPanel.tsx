@@ -53,10 +53,10 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
   };
 
   // --- Step 1: Build a *timeline* of stages for the whole day ---
-  // Sunrise remains visible in the table, but it is not a congregational
-  // prayer and should never become a countdown target.
+  // Sunrise is a useful countdown milestone even though it is not an adhan.
   const order: PrayerName[] = [
     "Fajr",
+    "Sunrise",
     "Dhuhr",
     "Asr",
     "Maghrib",
@@ -118,6 +118,10 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
   const ss = String(diffSec % 60).padStart(2, "0");
 
   const isAdhanStage = nextStage.stage === "adhan"; // true = Adhan, false = Iqamah
+  const stageLabel =
+    nextStage.prayerName === "Sunrise"
+      ? "in"
+      : `${isAdhanStage ? "Adhan" : "Iqamah"} in`;
 
   // --- Step 4: Render the panel with appropriate label text ---
   return (
@@ -130,7 +134,7 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
 
     {/* "Adhan in" or "Iqamah in" centered underneath */}
     <h3 className="font-mono text-[85px] text-white -translate-y-8">
-      {isAdhanStage ? "Adhan" : "Iqamah"} in
+      {stageLabel}
     </h3>
 
         {/* COUNTDOWN: HH : MM : SS with labels underneath */}
