@@ -6,9 +6,11 @@
 
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-// Upstream URL that returns the adhan times JSON
-// NOTE: same upstream you used on Netlify.
-const UPSTREAM_URL = "http://132.145.105.37/prayer-times";
+// Upstream URL that returns the adhan-only prayer times JSON.
+// Configure PRAYER_API_URL in Vercel; keep the previous service as a fallback
+// so existing deployments do not fail if the variable is temporarily absent.
+const UPSTREAM_URL =
+  process.env.PRAYER_API_URL ?? "http://132.145.105.37/prayer-times";
 
 // All the prayer names we care about (and that exist in upstream JSON)
 type PrayerName = "Fajr" | "Sunrise" | "Dhuhr" | "Asr" | "Maghrib" | "Isha";

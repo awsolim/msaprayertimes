@@ -6,8 +6,9 @@
 
 import type { Handler } from "@netlify/functions";
 
-// Upstream URL that returns the adhan times JSON
-const UPSTREAM_URL = "http://132.145.105.37/prayer-times";
+// Upstream URL that returns the adhan-only prayer times JSON
+const UPSTREAM_URL =
+  process.env.PRAYER_API_URL ?? "http://132.145.105.37/prayer-times";
 
 // All the prayer names we care about
 type PrayerName = "Fajr" | "Sunrise" | "Dhuhr" | "Asr" | "Maghrib" | "Isha";
