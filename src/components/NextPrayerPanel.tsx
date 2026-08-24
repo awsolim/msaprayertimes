@@ -53,9 +53,10 @@ export default function NextPrayerPanel({ prayerTimes }: Props) {
   };
 
   // --- Step 1: Build a *timeline* of stages for the whole day ---
+  // Sunrise remains visible in the table, but it is not a congregational
+  // prayer and should never become a countdown target.
   const order: PrayerName[] = [
     "Fajr",
-    "Sunrise",
     "Dhuhr",
     "Asr",
     "Maghrib",

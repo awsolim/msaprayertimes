@@ -1,19 +1,30 @@
 // api/prayer-times.ts
 // Vercel serverless function that:
 // 1) Fetches upstream adhan times JSON.
-// 2) Applies iqamah rules from IQAMAH_CONFIG env var.
+// 2) Loads iqamah rules from Supabase.
 // 3) Returns combined adhan + iqama times with CORS headers.
 
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import {
+  loadIqamahRules,
+  prayerNames,
+  type IqamahRule,
+  type PrayerName,
+} from "../lib/iqamah.js";
 
 // Upstream URL that returns the adhan-only prayer times JSON.
 // Configure PRAYER_API_URL in Vercel; keep the previous service as a fallback
 // so existing deployments do not fail if the variable is temporarily absent.
 const UPSTREAM_URL =
   process.env.PRAYER_API_URL ?? "http://132.145.105.37/prayer-times";
-
-// All the prayer names we care about (and that exist in upstream JSON)
-type PrayerName = "Fajr" | "Sunrise" | "Dhuhr" | "Asr" | "Maghrib" | "Isha";
+const SUPABASE_URL =
+  process.env.SUPABASE_URL ??
+  process.env.NEXT_PUBLIC_SUPABASE_URL ??
+  "https://czbzdvpzcfnxbezxcumm.supabase.co";
+const SUPABASE_ANON_KEY =
+  process.env.SUPABASE_ANON_KEY ??
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6YnpkdnB6Y2ZueGJlenhjdW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM5OTM2NzcsImV4cCI6MjA3OTU2OTY3N30.N3gh2es8YpMUgR1vZpdrauhf-MqpEjsOj1_qTOH4_gM";
 
 // Shape of the upstream JSON (adhan-only)
 type UpstreamPrayerTimes = {
@@ -24,17 +35,6 @@ type UpstreamPrayerTimes = {
   Asr: string;
   Maghrib: string;
   Isha: string;
-};
-
-// Types for iqamah rules coming from IQAMAH_CONFIG
-type IqamahRule =
-  | { type: "offset"; minutes: number } // iqamah = adhan + minutes
-  | { type: "fixed"; time: string } // iqamah = fixed 24h "HH:MM"
-  | { type: "none" }; // no iqamah
-
-type IqamahConfig = {
-  // One rule per prayer (optional)
-  rules: Partial<Record<PrayerName, IqamahRule>>;
 };
 
 // Type of the combined response we send back to the frontend
@@ -62,45 +62,6 @@ const corsHeaders: Record<string, string> = {
   "Expires": "0",
 };
 
-// Helper: parse IQAMAH_CONFIG env var or fall back to sensible defaults
-function loadIqamahConfig(): IqamahConfig {
-  // Read raw string from env
-  const raw = process.env.IQAMAH_CONFIG;
-
-  if (!raw) {
-    // If env var is missing, fall back to defaults.
-    return {
-      rules: {
-        Fajr: { type: "offset", minutes: 30 }, // adhan + 30
-        Sunrise: { type: "none" }, // no iqamah
-        Dhuhr: { type: "fixed", time: "14:00" }, // 2:00 PM
-        Asr: { type: "offset", minutes: 5 }, // adhan + 5
-        Maghrib: { type: "offset", minutes: 5 }, // adhan + 5
-        Isha: { type: "fixed", time: "21:30" }, // 9:30 PM
-      },
-    };
-  }
-
-  try {
-    // Parse JSON string into IqamahConfig
-    return JSON.parse(raw) as IqamahConfig;
-  } catch (err) {
-    console.error("Failed to parse IQAMAH_CONFIG:", err);
-
-    // If parsing fails, fall back to a safe default set
-    return {
-      rules: {
-        Fajr: { type: "offset", minutes: 30 },
-        Sunrise: { type: "none" },
-        Dhuhr: { type: "fixed", time: "14:00" },
-        Asr: { type: "offset", minutes: 5 },
-        Maghrib: { type: "offset", minutes: 5 },
-        Isha: { type: "fixed", time: "21:30" },
-      },
-    };
-  }
-}
-
 // Helper: convert "h:mm AM/PM" (e.g. "5:55 AM") to minutes since midnight
 function adhanStringToMinutes(timeStr: string): number {
   const [timePart, meridiem] = timeStr.split(" ");
@@ -126,7 +87,7 @@ function fixed24hToMinutes(timeStr: string): number {
 // Helper: convert minutes since midnight back to "h:mm AM/PM" string
 function minutesTo12hString(totalMinutes: number): string {
   const minutesInDay = 24 * 60;
-  let mins = ((totalMinutes % minutesInDay) + minutesInDay) % minutesInDay;
+  const mins = ((totalMinutes % minutesInDay) + minutesInDay) % minutesInDay;
 
   const hour24 = Math.floor(mins / 60);
   const minute = mins % 60;
@@ -213,19 +174,9 @@ export default async function handler(
     const upstreamData =
       (await upstreamRes.json()) as UpstreamPrayerTimes;
 
-    // Load iqamah configuration (rules per prayer)
-    const iqamahConfig = loadIqamahConfig();
-    const rules = iqamahConfig.rules || {};
-
-    // Build combined response: adhan + iqama for each prayer
-    const prayerNames: PrayerName[] = [
-      "Fajr",
-      "Sunrise",
-      "Dhuhr",
-      "Asr",
-      "Maghrib",
-      "Isha",
-    ];
+    // Load iqamah rules from Supabase. The loader uses safe fallback rules if
+    // the table is temporarily unavailable.
+    const rules = await loadIqamahRules(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const combinedPrayers: Record<
       PrayerName,

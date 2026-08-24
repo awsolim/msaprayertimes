@@ -19,7 +19,6 @@ export interface PrayerPhaseResult {
 
 const ORDER: PrayerName[] = [
   "Fajr",
-  "Sunrise",
   "Dhuhr",
   "Asr",
   "Maghrib",

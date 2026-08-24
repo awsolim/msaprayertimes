@@ -1,17 +1,28 @@
 // netlify/functions/prayer-times.ts
 // Netlify serverless function that:
 // 1) Fetches upstream adhan times JSON.
-// 2) Applies iqamah rules from IQAMAH_CONFIG env var.
+// 2) Loads iqamah rules from Supabase.
 // 3) Returns combined adhan + iqama times with CORS headers.
 
 import type { Handler } from "@netlify/functions";
+import {
+  loadIqamahRules,
+  prayerNames,
+  type IqamahRule,
+  type PrayerName,
+} from "../../lib/iqamah.js";
 
 // Upstream URL that returns the adhan-only prayer times JSON
 const UPSTREAM_URL =
   process.env.PRAYER_API_URL ?? "http://132.145.105.37/prayer-times";
-
-// All the prayer names we care about
-type PrayerName = "Fajr" | "Sunrise" | "Dhuhr" | "Asr" | "Maghrib" | "Isha";
+const SUPABASE_URL =
+  process.env.SUPABASE_URL ??
+  process.env.NEXT_PUBLIC_SUPABASE_URL ??
+  "https://czbzdvpzcfnxbezxcumm.supabase.co";
+const SUPABASE_ANON_KEY =
+  process.env.SUPABASE_ANON_KEY ??
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6YnpkdnB6Y2ZueGJlenhjdW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM5OTM2NzcsImV4cCI6MjA3OTU2OTY3N30.N3gh2es8YpMUgR1vZpdrauhf-MqpEjsOj1_qTOH4_gM";
 
 // Upstream JSON structure
 type UpstreamPrayerTimes = {
@@ -22,16 +33,6 @@ type UpstreamPrayerTimes = {
   Asr: string;
   Maghrib: string;
   Isha: string;
-};
-
-// Iqamah rules
-type IqamahRule =
-  | { type: "offset"; minutes: number }
-  | { type: "fixed"; time: string }
-  | { type: "none" };
-
-type IqamahConfig = {
-  rules: Partial<Record<PrayerName, IqamahRule>>;
 };
 
 // Final API response shape
@@ -58,41 +59,6 @@ const corsHeaders = {
 };
 
 // -------------------------
-// Utility: load iqamah rules
-// -------------------------
-function loadIqamahConfig(): IqamahConfig {
-  const raw = process.env.IQAMAH_CONFIG;
-
-  if (!raw) {
-    return {
-      rules: {
-        Fajr: { type: "offset", minutes: 30 },
-        Sunrise: { type: "none" },
-        Dhuhr: { type: "fixed", time: "14:00" },
-        Asr: { type: "offset", minutes: 5 },
-        Maghrib: { type: "offset", minutes: 5 },
-        Isha: { type: "fixed", time: "21:30" },
-      },
-    };
-  }
-
-  try {
-    return JSON.parse(raw) as IqamahConfig;
-  } catch {
-    return {
-      rules: {
-        Fajr: { type: "offset", minutes: 30 },
-        Sunrise: { type: "none" },
-        Dhuhr: { type: "fixed", time: "14:00" },
-        Asr: { type: "offset", minutes: 5 },
-        Maghrib: { type: "offset", minutes: 5 },
-        Isha: { type: "fixed", time: "21:30" },
-      },
-    };
-  }
-}
-
-// -------------------------
 // Time conversion utilities
 // -------------------------
 function adhanStringToMinutes(timeStr: string): number {
@@ -115,7 +81,7 @@ function fixed24hToMinutes(timeStr: string): number {
 
 function minutesTo12hString(totalMinutes: number): string {
   const minutesInDay = 24 * 60;
-  let mins = ((totalMinutes % minutesInDay) + minutesInDay) % minutesInDay;
+  const mins = ((totalMinutes % minutesInDay) + minutesInDay) % minutesInDay;
 
   const hour24 = Math.floor(mins / 60);
   const minute = mins % 60;
@@ -186,22 +152,12 @@ export const handler: Handler = async (event) => {
 
     const upstreamData = (await upstreamRes.json()) as UpstreamPrayerTimes;
 
-    const iqamahConfig = loadIqamahConfig();
-    const rules = iqamahConfig.rules || {};
-
-    const prayerNames: PrayerName[] = [
-      "Fajr",
-      "Sunrise",
-      "Dhuhr",
-      "Asr",
-      "Maghrib",
-      "Isha",
-    ];
+    const rules = await loadIqamahRules(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const combinedPrayers: Record<
       PrayerName,
       CombinedPrayerInfo
-    > = {} as any;
+    > = {} as Record<PrayerName, CombinedPrayerInfo>;
 
     for (const name of prayerNames) {
       const adhan = upstreamData[name];
