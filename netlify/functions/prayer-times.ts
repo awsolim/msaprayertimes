@@ -51,6 +51,9 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
+  "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+  "Pragma": "no-cache",
+  "Expires": "0",
 };
 
 // -------------------------
@@ -64,7 +67,7 @@ function loadIqamahConfig(): IqamahConfig {
       rules: {
         Fajr: { type: "offset", minutes: 30 },
         Sunrise: { type: "none" },
-        Dhuhr: { type: "fixed", time: "13:30" },
+        Dhuhr: { type: "fixed", time: "14:00" },
         Asr: { type: "offset", minutes: 5 },
         Maghrib: { type: "offset", minutes: 5 },
         Isha: { type: "fixed", time: "21:30" },
@@ -79,7 +82,7 @@ function loadIqamahConfig(): IqamahConfig {
       rules: {
         Fajr: { type: "offset", minutes: 30 },
         Sunrise: { type: "none" },
-        Dhuhr: { type: "fixed", time: "13:00" },
+        Dhuhr: { type: "fixed", time: "14:00" },
         Asr: { type: "offset", minutes: 5 },
         Maghrib: { type: "offset", minutes: 5 },
         Isha: { type: "fixed", time: "21:30" },
@@ -159,7 +162,13 @@ export const handler: Handler = async (event) => {
 
   try {
     // Fetch upstream adhan times
-    const upstreamRes = await fetch(UPSTREAM_URL);
+    const url = `${UPSTREAM_URL}?t=${Date.now()}`;
+    const upstreamRes = await fetch(url, {
+      headers: {
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache"
+      }
+    });
 
     if (!upstreamRes.ok) {
       return {

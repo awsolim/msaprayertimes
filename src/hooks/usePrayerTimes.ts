@@ -29,7 +29,7 @@ export type PrayerTimes = {
 // ------------------------------
 const PRAYER_API_URL =
   import.meta.env.VITE_PRAYER_API_URL ??
-  "https://msaprayertimes.vercel.app/api/prayer-times"; 
+  "https://msaprayertimes.vercel.app/api/prayer-times";
 // ^ Replace with YOUR exact Vercel project URL if different
 
 // ------------------------------
@@ -38,7 +38,16 @@ const PRAYER_API_URL =
 async function fetchPrayerTimes(): Promise<PrayerTimes> {
   console.log("Fetching prayer times from:", PRAYER_API_URL);
 
-  const res = await fetch(PRAYER_API_URL, { method: "GET" });
+  // Add timestamp to query to bypass browser/CDN cache
+  const url = `${PRAYER_API_URL}?t=${Date.now()}`;
+  const res = await fetch(url, {
+    method: "GET",
+    cache: "no-store",
+    headers: {
+      "Pragma": "no-cache",
+      "Cache-Control": "no-cache"
+    }
+  });
 
   if (!res.ok) {
     throw new Error(`HTTP ${res.status} | Failed to fetch prayer times`);
@@ -75,7 +84,7 @@ export default function usePrayerTimes() {
 
     load();
 
-    // Refresh once at midnight
+    // Force a full page reload at midnight to ensure fresh state/data
     const scheduleMidnightRefresh = () => {
       const next = new Date(
         now.getFullYear(),
@@ -86,7 +95,10 @@ export default function usePrayerTimes() {
         2
       ).getTime();
       const msUntil = next - Date.now();
-      return setTimeout(load, msUntil);
+
+      return setTimeout(() => {
+        window.location.reload();
+      }, msUntil);
     };
 
     const timer = scheduleMidnightRefresh();

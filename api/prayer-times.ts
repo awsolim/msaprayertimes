@@ -54,6 +54,10 @@ const corsHeaders: Record<string, string> = {
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   // Headers we allow from browsers
   "Access-Control-Allow-Headers": "Content-Type",
+  // Disable caching entirely
+  "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+  "Pragma": "no-cache",
+  "Expires": "0",
 };
 
 // Helper: parse IQAMAH_CONFIG env var or fall back to sensible defaults
@@ -67,7 +71,7 @@ function loadIqamahConfig(): IqamahConfig {
       rules: {
         Fajr: { type: "offset", minutes: 30 }, // adhan + 30
         Sunrise: { type: "none" }, // no iqamah
-        Dhuhr: { type: "fixed", time: "13:30" }, // 1:30 PM
+        Dhuhr: { type: "fixed", time: "14:00" }, // 2:00 PM
         Asr: { type: "offset", minutes: 5 }, // adhan + 5
         Maghrib: { type: "offset", minutes: 5 }, // adhan + 5
         Isha: { type: "fixed", time: "21:30" }, // 9:30 PM
@@ -86,7 +90,7 @@ function loadIqamahConfig(): IqamahConfig {
       rules: {
         Fajr: { type: "offset", minutes: 30 },
         Sunrise: { type: "none" },
-        Dhuhr: { type: "fixed", time: "13:00" },
+        Dhuhr: { type: "fixed", time: "14:00" },
         Asr: { type: "offset", minutes: 5 },
         Maghrib: { type: "offset", minutes: 5 },
         Isha: { type: "fixed", time: "21:30" },
@@ -182,8 +186,15 @@ export default async function handler(
     });
     res.setHeader("Content-Type", "application/json");
 
-    // Fetch upstream adhan times JSON
-    const upstreamRes = await fetch(UPSTREAM_URL);
+    // Fetch upstream adhan times JSON with cache busting
+    // Add fallback for when UPSTREAM_URL already has query params? (It doesn't here)
+    const url = `${UPSTREAM_URL}?t=${Date.now()}`;
+    const upstreamRes = await fetch(url, {
+      headers: {
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache"
+      }
+    });
 
     if (!upstreamRes.ok) {
       // Forward upstream error with JSON body

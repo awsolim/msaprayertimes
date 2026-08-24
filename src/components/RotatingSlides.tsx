@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import type { PrayerTimes } from "../hooks/usePrayerTimes";
 import NextPrayerPanel from "./NextPrayerPanel";
 import useEvents from "../hooks/useEvents";
+import useNow from "../hooks/useNow"; // NEW: needed for 50s override check
 import type { EventRow } from "../hooks/useEvents";
 import useHadith from "../hooks/useHadith"; // NEW: hook to load hadith from Supabase
 import type { HadithRow } from "../hooks/useHadith"; // NEW: type for hadith rows
@@ -21,116 +22,127 @@ import locationPin from "../assets/location.png";
 // All possible slide types in the global rotation
 type SlideKind = "countdown" | "event" | "hadith";
 
-// Ordered list of slides we rotate through
-const SLIDES: SlideKind[] = ["countdown", "event", "hadith"];
-
-// How long each slide stays fully visible before transitioning (ms)
-const DURATION = 10000; // 10 seconds per slide so event slide can show 2 pages
-
-// How long the fade animation lasts (ms)
-const FADE_MS = 400; // 0.7 second fade duration
-
+// ─────────────────────────────────────────────
+// CONFIGURATION
+// ─────────────────────────────────────────────
 // Debug freeze mode: when true, disable rotation and lock onto one slide
-const DEBUG_FREEZE = true;
+const DEBUG_FREEZE = false;
 
 // Which slide to show when DEBUG_FREEZE is true
 const DEBUG_SLIDE: SlideKind = "countdown";
+
 
 type Props = {
   prayerTimes: PrayerTimes;
 };
 
 export default function RotatingSlides({ prayerTimes }: Props) {
-  const [index, setIndex] = useState(0);
+  // Use the central useNow hook to get standard time (synced to seconds)
+  const now = useNow();
+  const seconds = now.getSeconds();
+
+  // ─────────────────────────────────────────────
+  // CLOCK-SYNCED ROTATION
+  // The user wants specific content at specific 10-second slots of the minute.
+  // 00-10: Events
+  // 10-20: Countdown
+  // 20-30: Hadith
+  // 30-40: Events
+  // 40-50: Countdown
+  // 50-60: Countdown (Critical Override)
+  // ─────────────────────────────────────────────
+
+  const slot = Math.floor(seconds / 10); // 0..5
+
+  let targetSlide: SlideKind = "countdown"; // default safety
+
+  switch (slot) {
+    case 0: // :00 - :09
+      targetSlide = "hadith";
+      break;
+    case 1: // :10 - :19
+      targetSlide = "event";
+      break;
+    case 2: // :20 - :29
+      targetSlide = "countdown";
+      break;
+    case 3: // :30 - :39
+      targetSlide = "hadith";
+      break;
+    case 4: // :40 - :49
+      targetSlide = "event";
+      break;
+    case 5: // :50 - :59
+      targetSlide = "countdown";
+      break;
+  }
+
+  // Debug freeze overrules everything
+  if (DEBUG_FREEZE) {
+    targetSlide = DEBUG_SLIDE;
+  }
+
+  // State to manage the fade transition
+  // We don't render 'targetSlide' directly; we render 'visibleSlide'
+  const [visibleSlide, setVisibleSlide] = useState<SlideKind>(targetSlide);
   const [fadeStage, setFadeStage] = useState<"in" | "out">("in");
 
-  // Events from Supabase (already set up elsewhere)
+  useEffect(() => {
+    // If we're already showing the right slide, ensure we're faded in
+    if (visibleSlide === targetSlide) {
+      setFadeStage("in");
+      return;
+    }
+
+    // Otherwise, we need to transition: Fade Out -> Switch -> Fade In
+    setFadeStage("out");
+
+    const timeoutId = setTimeout(() => {
+      setVisibleSlide(targetSlide);
+      // The fade-in will be triggered by the next render cycle's if-check above,
+      // but to be safe and explicit, we can schedule it.
+      // However, just changing visibleSlide to targetSlide will cause a re-render.
+      // In that re-render, the first `if` block will run, setting `fadeStage` to "in".
+      // But setting state during render is bad practice.
+      // Better to rely on a separate effect or just timeout logic.
+      // Let's keep it simple: wait a tick then fade in.
+      requestAnimationFrame(() => {
+        setFadeStage("in");
+      });
+    }, 500); // Wait 500ms for fade out to complete
+
+    return () => clearTimeout(timeoutId);
+  }, [targetSlide, visibleSlide]);
+
+  // Events from Supabase
   const {
     events,
     loading: loadingEvents,
     error: eventsError,
   } = useEvents();
 
-  // NEW: Hadith-of-the-day from Supabase, loaded once here
+  // Hadith-of-the-day from Supabase
   const {
     hadith,
     loading: loadingHadith,
     error: hadithError,
-  } = useHadith(); // NEW: central place where hadith is fetched and cached
+  } = useHadith();
 
-  // ─────────────────────────────────────────────
-  // DEBUG FREEZE: lock onto a specific slide, no rotation or fading
-  // ─────────────────────────────────────────────
-  if (DEBUG_FREEZE) {
-    const activeSlide: SlideKind = DEBUG_SLIDE;
-
-    return (
-      <div className="w-full h-full flex flex-col items-center justify-center">
-        {activeSlide === "countdown" && (
-          <NextPrayerPanel prayerTimes={prayerTimes} />
-        )}
-
-        {activeSlide === "event" && (
-          <EventSlide
-            events={events}
-            loading={loadingEvents}
-            error={eventsError}
-          />
-        )}
-
-        {activeSlide === "hadith" && (
-          <HadithSlide
-            hadith={hadith}          // NEW: pass hadith data down
-            loading={loadingHadith}  // NEW: pass loading flag
-            error={hadithError}      // NEW: pass error message
-          />
-        )}
-      </div>
-    );
-  }
-
-  // ─────────────────────────────────────────────
-  // NORMAL MODE: automatic rotation + fading
-  // ─────────────────────────────────────────────
-
-  useEffect(() => {
-    let timeoutId: number | undefined;
-
-    const startTransition = () => {
-      setFadeStage("out");
-
-      timeoutId = window.setTimeout(() => {
-        setIndex((prev) => (prev + 1) % SLIDES.length);
-        setFadeStage("in");
-      }, FADE_MS);
-    };
-
-    const intervalId = window.setInterval(startTransition, DURATION);
-
-    return () => {
-      window.clearInterval(intervalId);
-      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
-    };
-  }, []);
-
-  const slideFromIndex: SlideKind = SLIDES[index];
   const opacityClass = fadeStage === "in" ? "opacity-100" : "opacity-0";
 
   return (
     <div
       className={
-        "w-full h-full relative " +
-        "flex flex-col items-center justify-center " +
-        "transition-opacity duration-700 ease-out " +
-        "overflow-y-auto " + // content scrolls inside right panel only
+        "w-full h-full relative flex flex-col items-center justify-center overflow-y-auto " +
+        "transition-opacity duration-500 ease-in-out " +
         opacityClass
       }
     >
-      {slideFromIndex === "countdown" && (
+      {visibleSlide === "countdown" && (
         <NextPrayerPanel prayerTimes={prayerTimes} />
       )}
 
-      {slideFromIndex === "event" && (
+      {visibleSlide === "event" && (
         <EventSlide
           events={events}
           loading={loadingEvents}
@@ -138,9 +150,9 @@ export default function RotatingSlides({ prayerTimes }: Props) {
         />
       )}
 
-      {slideFromIndex === "hadith" && (
+      {visibleSlide === "hadith" && (
         <HadithSlide
-          hadith={hadith}          // NEW: use Supabase hadith in normal mode
+          hadith={hadith}
           loading={loadingHadith}
           error={hadithError}
         />
@@ -335,7 +347,7 @@ function EventCard({ event }: { event: EventRow }) {
 
       {/* Right column: title, location, times, description */}
       <div className="flex-1 flex flex-col gap-3 items-center mr-12">
-        <h3 className="text-3xl md:text-4xl font-bold text-sky-50">
+        <h3 className="text-3xl md:text-4xl font-bold text-sky-50 text-center">
           {event.title}
         </h3>
 
@@ -343,13 +355,13 @@ function EventCard({ event }: { event: EventRow }) {
         <p className="text-2xl text-sky-200 flex flex-wrap gap-3">
           {event.place && (
             <span className="flex items-center gap-2 text-sky-300">
-  <img
-    src={locationPin}
-    alt="Location"
-    className="w-6 h-6 object-contain inline-block"
-  />
-  {event.place}
-</span>
+              <img
+                src={locationPin}
+                alt="Location"
+                className="w-6 h-6 object-contain inline-block"
+              />
+              {event.place}
+            </span>
 
           )}
 
@@ -447,32 +459,32 @@ function HadithSlide({ hadith, loading, error }: HadithSlideProps) {
       </h2>
 
       <p className="text-3xl md:text-4xl text-sky-100 font-semibold mb-6 flex items-center justify-center gap-3">
-  <span>The Messenger of Allah</span>
-  <img
-    src={pbuhIcon}
-    alt="ﷺ"
-    className="w-15 h-15 object-contain inline-block"
-  />
-  <span>said:</span>
-</p>
+        <span>The Messenger of Allah</span>
+        <img
+          src={pbuhIcon}
+          alt="ﷺ"
+          className="w-15 h-15 object-contain inline-block"
+        />
+        <span>said:</span>
+      </p>
 
- {/* Arabic text */}
-        <p className="text-4xl md:text-7xl text-(--next) leading-relaxed mb-6">
-          {hadith.arabic_text}
-        </p>
+      {/* Arabic text */}
+      <p className="text-center text-4xl md:text-7xl text-(--next) leading-relaxed mb-6">
+        {hadith.arabic_text}
+      </p>
 
-        {/* English translation */}
-        <p className="text-center text-2xl md:text-5xl text-sky-100 leading-relaxed mb-8">
-          {hadith.english_text}
-        </p>
+      {/* English translation */}
+      <p className="text-center text-2xl md:text-5xl text-sky-100 leading-relaxed mb-8">
+        {hadith.english_text}
+      </p>
 
-        {/* Narrator and source */}
-        <p className="text-xl md:text-4xl text-sky-200 mb-1">
-          Narrated by: {hadith.narrator}
-        </p>
-        <p className="text-lg md:text-4l text-sky-300">
-          Source: {hadith.source}
-        </p>
+      {/* Narrator and source */}
+      <p className="text-xl md:text-4xl text-sky-200 mb-1">
+        Narrated by: {hadith.narrator}
+      </p>
+      <p className="text-lg md:text-4l text-sky-300">
+        Source: {hadith.source}
+      </p>
 
     </div>
   );
@@ -511,4 +523,3 @@ function formatTimeRangeEdmonton(startIso: string, endIso: string): string {
 
   return `${start} – ${end}`; // "12:20 PM – 1:30 PM"
 }
-
