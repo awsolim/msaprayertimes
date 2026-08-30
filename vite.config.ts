@@ -7,5 +7,25 @@ export default defineConfig({
     react(),       // React support
     tailwindcss(), // Tailwind CSS integration
   ],
-  // No `server.proxy` needed anymore
+  // Vite does not execute the Vercel functions in /api during local
+  // development, so forward those requests to the deployed backend.
+  server: {
+    proxy: {
+      "/api/events": {
+        target: "https://msaprayertimes.vercel.app",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/api/hadith": {
+        target: "https://msaprayertimes.vercel.app",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/api/display-config": {
+        target: "https://msaprayertimes.vercel.app",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 });

@@ -1,5 +1,17 @@
 # React + TypeScript + Vite
 
+## Color themes
+
+Set `VITE_THEME` in `.env.local` for local development and in Vercel for the
+deployed display. Available values are `green-red`, `navy-gold`, `terracotta`,
+`ocean`, `charcoal`, `crimson`, `forest`, `violet`, `sandstone`,
+`emerald-lantern`, `sapphire-dawn`, `obsidian-gold`, `northern-lights`, and
+`plum-mint`, `moonlit-marble`, `desert-twilight`, `ruby-noir`,
+`celestial-indigo`, `jade-ice`, and `bronze-night`.
+
+Preview a theme without changing configuration by adding it to the URL, for
+example: `http://localhost:5173/?theme=navy-gold`.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

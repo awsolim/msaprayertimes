@@ -20,12 +20,17 @@ type UseHadithResult = {
   error: string | null;
 };
 
-export default function useHadith(): UseHadithResult {
+export default function useHadith(enabled = true): UseHadithResult {
   const [hadith, setHadith] = useState<HadithRow | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
+
     let isCancelled = false;
     let timerId: number | undefined;
 
@@ -63,9 +68,11 @@ export default function useHadith(): UseHadithResult {
             setError(null);
           }
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!isCancelled) {
-          setError(err.message || "Unknown error loading hadith");
+          setError(
+            err instanceof Error ? err.message : "Unknown error loading hadith",
+          );
         }
       } finally {
         if (!isCancelled) {
@@ -100,7 +107,7 @@ export default function useHadith(): UseHadithResult {
       isCancelled = true;
       if (timerId) clearTimeout(timerId);
     };
-  }, []);
+  }, [enabled]);
 
   return { hadith, loading, error };
 }

@@ -43,10 +43,6 @@ async function fetchPrayerTimes(): Promise<PrayerTimes> {
   const res = await fetch(url, {
     method: "GET",
     cache: "no-store",
-    headers: {
-      "Pragma": "no-cache",
-      "Cache-Control": "no-cache"
-    }
   });
 
   if (!res.ok) {

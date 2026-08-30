@@ -10,6 +10,9 @@ import RotatingSlides from "./components/RotatingSlides";
 
 import usePrayerTimes from "./hooks/usePrayerTimes"; 
 import usePrayerPhase from "./hooks/usePrayerPhase";
+import useDisplayConfig from "./hooks/useDisplayConfig";
+import { applyTheme } from "./theme";
+import { useEffect } from "react";
 
 // Arabic calligraphy images
 import fajrImg from "./assets/fajr.png";
@@ -19,6 +22,12 @@ import maghrebImg from "./assets/maghreb.png";
 import ishaImg from "./assets/isha.png";
 
 function App() {
+
+  const { config: displayConfig } = useDisplayConfig();
+
+  useEffect(() => {
+    applyTheme(displayConfig.themeName);
+  }, [displayConfig.themeName]);
 
   // UPDATED: usePrayerTimes now returns { data, loading, error }
   const { data, loading, error } = usePrayerTimes();   // ← change #1
@@ -127,7 +136,10 @@ function App() {
 
           {/* Clock row */}
           <div className="px-8 mt-8 shrink-0">
-            <DateTimePanel />
+            <DateTimePanel
+              logoUrl={displayConfig.logoUrl}
+              showLogo={displayConfig.showLogo}
+            />
           </div>
 
           {/* Slide region */}
@@ -146,7 +158,10 @@ function App() {
             )}
 
             {!loading && !error && data && (
-              <RotatingSlides prayerTimes={data} />
+              <RotatingSlides
+                prayerTimes={data}
+                displayConfig={displayConfig}
+              />
             )}
           </div>
         </div>

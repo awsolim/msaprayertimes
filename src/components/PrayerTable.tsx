@@ -114,12 +114,12 @@ export default function PrayerTable({ prayerTimes }: Props) {
               </div>
 
               {/* Adhan time – large numeric display */}
-              <div className="text-4xl md:text-[105px] font-mono text-right tracking-wide text-(--timenums)">
+              <div className="prayer-time-number text-4xl md:text-[105px] font-mono text-right tracking-wide text-(--timenums)">
                 {stripAmPm(info.adhan)}
               </div>
 
               {/* Iqama time – large numeric display */}
-              <div className="text-4xl md:text-8xl font-mono text-right tracking-wide opacity-90 text-(--timenums)">
+              <div className="prayer-time-number text-4xl md:text-8xl font-mono text-right tracking-wide opacity-90 text-(--timenums)">
                 {info.iqama ? stripAmPm(info.iqama) : "--"}
               </div>
             </div>

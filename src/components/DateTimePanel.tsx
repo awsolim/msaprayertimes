@@ -5,7 +5,12 @@
 import useNow from "../hooks/useNow"; // custom hook returning a Date that updates regularly
 //import msalogo from "../assets/msalogo.png"; // MSA logo shown next to the time
 
-export default function DateTimePanel() {
+type Props = {
+  logoUrl?: string | null;
+  showLogo?: boolean;
+};
+
+export default function DateTimePanel({ logoUrl, showLogo = false }: Props) {
   const now = useNow(1000); // update every second
 
   // Use en-US so we get "3:28 PM" instead of "3:28 p.m."
@@ -41,12 +46,13 @@ export default function DateTimePanel() {
           {timeStr}
         </div>
 
-        {/* MSA logo to the right of the time */}
-        {/* <img
-          src={msalogo}
-          alt="MSA logo"
-          className="h-14 md:h-26 object-contain"
-        /> */}
+        {showLogo && logoUrl && (
+          <img
+            src={logoUrl}
+            alt="MSA logo"
+            className="h-14 md:h-26 max-w-52 object-contain"
+          />
+        )}
       </div>
     </div>
   );

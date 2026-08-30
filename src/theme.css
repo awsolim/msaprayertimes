@@ -1,84 +1,33 @@
-
-
-
-/* Green With Red */
-
-   :root {
+/* Select with VITE_THEME or preview with ?theme=<name>. */
+:root,
+:root[data-theme="green-red"] {
   --panel-bg: radial-gradient(circle at 20% 0%, #071b15, #06261b 40%, #0d3f2a);
   --table-bg: linear-gradient(180deg, #215b38, #15402a);
-  --active-row-bg: #5d1d32;
-  --active-row-bg: linear-gradient(
-    90deg,
-    #5d1d32 0%,    
-    #521328 40%, 
-    #42091c 100%   
-  );
+  --active-row-bg: linear-gradient(90deg, #5d1d32 0%, #521328 40%, #42091c 100%);
   --iqamatime-bg: radial-gradient(circle at center, #1d2321, #0b0a1b, #1d0723);
-
   --current-time: #ffe9a8;
   --next: #ffe9a8;
   --timenums: #ffffff;
   --tabletext: #eafaf1;
-
   --border: #215b38;
   --active-border: rgba(255, 255, 255, 0.08);
-}    
-
-/*
-:root {
-  
-  --panel-bg: radial-gradient(
-    circle at top,
-    #06144c 0%,    
-    #020825 30%,    
-    #071a3d 70%,    
-    #020825 100%
-  );
-
-  --table-bg: linear-gradient(
-    180deg,
-    #0a2a5e 0%,
-    #092b66 45%,
-    #030b2b 100%
-  );
-
-  --active-row-bg: linear-gradient(
-    90deg,
-    rgba(255,223,94,0.35) 0%,    
-    #ffdc8273 40%,  
-    rgba(255,196,61,0.30) 100%    
-  );
-
- 
-  --iqamatime-bg: radial-gradient(
-    circle at center,
-    #231e08 0%,     
-    #31280b 25%,    
-    #2c230b 45%,    
-    #1f1807 70%,     
-    #020817 100%    
-  );
-
-
-  --current-time: #f9eebb;   
-  --next: #f9eebb;           
-  --timenums: #ffffff;       
-  --tabletext: #e3e8f5;      
-
-
-  --border: rgba(25, 35, 70, 0.85); 
-  --active-border: linear-gradient(
-    90deg,
-    #ffe98a,
-    #ffd447,
-    #fbbf24
-  );
+  --time-glow: 0 0 5px rgba(255, 255, 255, 0.24), 0 0 16px rgba(224, 255, 235, 0.12);
 }
-*/
 
+:root[data-theme="navy-gold"] {
+  --panel-bg: radial-gradient(circle at top, #06144c 0%, #020825 30%, #071a3d 70%, #020825 100%);
+  --table-bg: linear-gradient(180deg, #0a2a5e 0%, #092b66 45%, #030b2b 100%);
+  --active-row-bg: linear-gradient(90deg, rgba(255, 223, 94, 0.35) 0%, #ffdc8273 40%, rgba(255, 196, 61, 0.3) 100%);
+  --iqamatime-bg: radial-gradient(circle at center, #231e08 0%, #31280b 25%, #2c230b 45%, #1f1807 70%, #020817 100%);
+  --current-time: #f9eebb;
+  --next: #f9eebb;
+  --timenums: #ffffff;
+  --tabletext: #e3e8f5;
+  --border: rgba(25, 35, 70, 0.85);
+  --active-border: #ffd447;
+}
 
-/*
- :root {
+:root[data-theme="terracotta"] {
   --panel-bg: radial-gradient(circle at top, #1b0b12, #3b1720 40%, #5f2c1e 75%, #8b4b24);
   --table-bg: linear-gradient(180deg, #7d3b2f, #5e2622);
   --active-row-bg: #bf4a3b;
@@ -89,14 +38,9 @@
   --tabletext: #ffe9d1;
   --border: rgba(0, 0, 0, 0.65);
   --active-border: rgba(255, 200, 180, 0.15);
-}  
-*/
+}
 
-
-
-
-/*
- :root {
+:root[data-theme="ocean"] {
   --panel-bg: radial-gradient(circle at 15% 0%, #020812, #041629 40%, #03273d 75%, #054557);
   --table-bg: linear-gradient(180deg, #06384f, #042538);
   --active-row-bg: #234c6f;
@@ -107,14 +51,9 @@
   --tabletext: #e0f3ff;
   --border: rgba(0, 10, 25, 0.8);
   --active-border: rgba(100, 160, 240, 0.15);
-} 
-*/
+}
 
-
-
-
-/*
-:root {
+:root[data-theme="charcoal"] {
   --panel-bg: radial-gradient(circle at top, #050505, #111111 45%, #181818 80%);
   --table-bg: linear-gradient(180deg, #1f1f1f, #141414);
   --active-row-bg: #373737;
@@ -126,77 +65,224 @@
   --border: rgba(255, 255, 255, 0.06);
   --active-border: rgba(255, 255, 255, 0.12);
 }
-*/
 
-
-/*
-:root {
+:root[data-theme="crimson"] {
   --panel-bg: radial-gradient(circle at 30% 0%, #260a0f, #3b1119 40%, #5c1b27 75%, #7a2633);
   --table-bg: linear-gradient(180deg, #5d1b26, #3e121a);
   --active-row-bg: #8a2f40;
   --iqamatime-bg: radial-gradient(circle at center, #0d0204, #050002, #000000);
-
   --current-time: #ffddb9;
   --next: #ff9aaa;
   --timenums: #fff5f7;
   --tabletext: #ffdfe5;
-
   --border: rgba(0, 0, 0, 0.6);
   --active-border: rgba(255, 180, 190, 0.15);
 }
-*/
 
-
-
-/*
-:root {
+:root[data-theme="forest"] {
   --panel-bg: radial-gradient(circle at top, #0c1a14, #153226 40%, #294a34 70%, #3f5f45);
   --table-bg: linear-gradient(180deg, #2e4b36, #1b3224);
   --active-row-bg: #4a634a;
   --iqamatime-bg: radial-gradient(circle, #020905, #000d06, #000000);
-
   --current-time: #e5ffcf;
   --next: #b4e1b0;
   --timenums: #ffffff;
   --tabletext: #ddf5e3;
-
   --border: rgba(0, 30, 10, 0.6);
   --active-border: rgba(160, 255, 190, 0.15);
 }
-*/
 
-
-/*
-:root {
+:root[data-theme="violet"] {
   --panel-bg: radial-gradient(circle at 20% 0%, #050014, #0b0430 40%, #150a4b 75%, #1c0f60);
   --table-bg: linear-gradient(180deg, #1b0f4a, #0e0833);
   --active-row-bg: #3a1f78;
   --iqamatime-bg: radial-gradient(circle, #030014, #020013, #000000);
-
   --current-time: #d7caff;
   --next: #b692ff;
   --timenums: #f2e9ff;
   --tabletext: #e5dbff;
-
   --border: rgba(40, 0, 70, 0.7);
   --active-border: rgba(180, 150, 255, 0.2);
 }
-*/
 
-
-/*
-:root {
+:root[data-theme="sandstone"] {
   --panel-bg: radial-gradient(circle at top, #3b2a1c, #5c4430 40%, #7c5b3c 70%, #a07b53);
   --table-bg: linear-gradient(180deg, #7c5d3f, #5a412c);
   --active-row-bg: #9b704a;
   --iqamatime-bg: radial-gradient(circle at center, #1d2321, #0b0a1b, #1d0723);
-
   --current-time: #ffe6c7;
   --next: #ffbfa3;
   --timenums: #fff8f0;
   --tabletext: #ffe9d1;
-
   --border: rgba(60, 40, 20, 0.7);
   --active-border: rgba(255, 230, 200, 0.18);
 }
-*/
+
+/* Deep emerald with warm lantern-gold highlights. */
+:root[data-theme="emerald-lantern"] {
+  --panel-bg: radial-gradient(circle at 70% 10%, #123f33 0%, #07271f 38%, #020d0b 100%);
+  --table-bg: linear-gradient(165deg, #0d3b2c 0%, #08291f 48%, #03130f 100%);
+  --active-row-bg: linear-gradient(90deg, #755216 0%, #9a7324 50%, #5b3d0c 100%);
+  --iqamatime-bg: radial-gradient(circle at center, #5d4215 0%, #17241c 38%, #020b08 100%);
+  --current-time: #ffe59a;
+  --next: #ffd36a;
+  --timenums: #fffdf2;
+  --tabletext: #e8fff5;
+  --border: rgba(133, 224, 186, 0.2);
+  --active-border: #ffd66f;
+  --time-glow: 0 0 5px rgba(255, 255, 255, 0.5), 0 0 18px rgba(255, 211, 106, 0.3);
+}
+
+/* Saturated sapphire with icy numerals and a sunrise accent. */
+:root[data-theme="sapphire-dawn"] {
+  --panel-bg: radial-gradient(circle at 75% 5%, #163c73 0%, #081c3f 42%, #020817 100%);
+  --table-bg: linear-gradient(180deg, #123d73 0%, #092653 52%, #04132e 100%);
+  --active-row-bg: linear-gradient(90deg, #70452e 0%, #a55f35 52%, #533020 100%);
+  --iqamatime-bg: radial-gradient(circle at center, #3b2030 0%, #101a35 42%, #030817 100%);
+  --current-time: #ffd4a3;
+  --next: #8edcff;
+  --timenums: #f6fcff;
+  --tabletext: #e5f3ff;
+  --border: rgba(116, 186, 255, 0.22);
+  --active-border: #ffb36c;
+  --time-glow: 0 0 5px rgba(255, 255, 255, 0.55), 0 0 19px rgba(83, 190, 255, 0.36);
+}
+
+/* Near-black luxury palette with bright gold information hierarchy. */
+:root[data-theme="obsidian-gold"] {
+  --panel-bg: radial-gradient(circle at 60% 0%, #242019 0%, #10100f 40%, #030303 100%);
+  --table-bg: linear-gradient(180deg, #211e18 0%, #12110e 55%, #070706 100%);
+  --active-row-bg: linear-gradient(90deg, #5d430f 0%, #8d681b 50%, #493207 100%);
+  --iqamatime-bg: radial-gradient(circle at center, #3a2c0e 0%, #0f0d08 45%, #000000 100%);
+  --current-time: #ffe08a;
+  --next: #ffd064;
+  --timenums: #fffdf5;
+  --tabletext: #f6eed8;
+  --border: rgba(234, 193, 93, 0.2);
+  --active-border: #f6c84d;
+  --time-glow: 0 0 4px rgba(255, 255, 255, 0.6), 0 0 17px rgba(246, 200, 77, 0.38);
+}
+
+/* Cool aurora colors on a very dark polar-night base. */
+:root[data-theme="northern-lights"] {
+  --panel-bg: radial-gradient(circle at 75% 0%, #18295c 0%, #082d35 40%, #031117 72%, #010609 100%);
+  --table-bg: linear-gradient(160deg, #123b44 0%, #102947 48%, #071324 100%);
+  --active-row-bg: linear-gradient(90deg, #533873 0%, #315f79 48%, #185f58 100%);
+  --iqamatime-bg: radial-gradient(circle at center, #203e50 0%, #17152f 42%, #02060b 100%);
+  --current-time: #bfffe9;
+  --next: #9deeff;
+  --timenums: #f5ffff;
+  --tabletext: #e3fff8;
+  --border: rgba(111, 240, 218, 0.18);
+  --active-border: #8fffe0;
+  --time-glow: 0 0 5px rgba(255, 255, 255, 0.55), 0 0 20px rgba(105, 238, 217, 0.38);
+}
+
+/* Rich plum and teal with a soft pearl-white numeric display. */
+:root[data-theme="plum-mint"] {
+  --panel-bg: radial-gradient(circle at 65% 0%, #38204b 0%, #1b1535 42%, #090914 100%);
+  --table-bg: linear-gradient(170deg, #183f3a 0%, #14302f 48%, #0b1820 100%);
+  --active-row-bg: linear-gradient(90deg, #6c2858 0%, #82406c 52%, #48203f 100%);
+  --iqamatime-bg: radial-gradient(circle at center, #3d2449 0%, #142629 42%, #05070c 100%);
+  --current-time: #ffd5ee;
+  --next: #9dffe1;
+  --timenums: #fffaff;
+  --tabletext: #e6fff8;
+  --border: rgba(190, 133, 211, 0.2);
+  --active-border: #ff9edc;
+  --time-glow: 0 0 5px rgba(255, 255, 255, 0.55), 0 0 18px rgba(157, 255, 225, 0.3);
+}
+
+/* Moonlit navy and slate with crisp silver-blue typography. */
+:root[data-theme="moonlit-marble"] {
+  --panel-bg: radial-gradient(circle at 65% 0%, #263653 0%, #121d32 42%, #050912 100%);
+  --table-bg: linear-gradient(165deg, #29364a 0%, #182336 50%, #0b111d 100%);
+  --active-row-bg: linear-gradient(90deg, #3f546e 0%, #526d8e 52%, #2b3b51 100%);
+  --iqamatime-bg: radial-gradient(circle at center, #29344a 0%, #101725 45%, #03060c 100%);
+  --current-time: #e9f2ff;
+  --next: #c4dcff;
+  --timenums: #ffffff;
+  --tabletext: #edf4ff;
+  --border: rgba(190, 213, 242, 0.2);
+  --active-border: #c9ddf8;
+  --time-glow: 0 0 5px rgba(255, 255, 255, 0.68), 0 0 20px rgba(166, 203, 255, 0.34);
+}
+
+/* Desert twilight: midnight teal, copper, and warm ivory. */
+:root[data-theme="desert-twilight"] {
+  --panel-bg: radial-gradient(circle at 70% 5%, #334439 0%, #172a28 38%, #091312 72%, #030706 100%);
+  --table-bg: linear-gradient(170deg, #31463d 0%, #22332f 48%, #101b1a 100%);
+  --active-row-bg: linear-gradient(90deg, #6f3823 0%, #a75b34 50%, #57301f 100%);
+  --iqamatime-bg: radial-gradient(circle at center, #51301f 0%, #20231d 42%, #080907 100%);
+  --current-time: #ffd8a6;
+  --next: #ffc27e;
+  --timenums: #fffaf0;
+  --tabletext: #f5f0dc;
+  --border: rgba(222, 174, 117, 0.2);
+  --active-border: #f0a567;
+  --time-glow: 0 0 5px rgba(255, 255, 255, 0.58), 0 0 19px rgba(240, 165, 103, 0.34);
+}
+
+/* Dramatic ruby glass over a true black base. */
+:root[data-theme="ruby-noir"] {
+  --panel-bg: radial-gradient(circle at 75% 0%, #49182a 0%, #200b16 40%, #070306 75%, #020102 100%);
+  --table-bg: linear-gradient(165deg, #3b1521 0%, #220c15 52%, #0d0508 100%);
+  --active-row-bg: linear-gradient(90deg, #791b35 0%, #ae2e50 50%, #5b1027 100%);
+  --iqamatime-bg: radial-gradient(circle at center, #4b1227 0%, #17070e 46%, #000000 100%);
+  --current-time: #ffd3dd;
+  --next: #ff96ad;
+  --timenums: #fff9fb;
+  --tabletext: #ffe8ee;
+  --border: rgba(242, 98, 134, 0.18);
+  --active-border: #ff789a;
+  --time-glow: 0 0 5px rgba(255, 255, 255, 0.62), 0 0 19px rgba(255, 72, 116, 0.34);
+}
+
+/* Celestial indigo with electric periwinkle accents. */
+:root[data-theme="celestial-indigo"] {
+  --panel-bg: radial-gradient(circle at 65% 0%, #312b77 0%, #17184b 40%, #080a22 72%, #02030b 100%);
+  --table-bg: linear-gradient(170deg, #292565 0%, #191743 50%, #0a0a21 100%);
+  --active-row-bg: linear-gradient(90deg, #413884 0%, #6259b7 52%, #302a6b 100%);
+  --iqamatime-bg: radial-gradient(circle at center, #302a6c 0%, #141536 43%, #03040d 100%);
+  --current-time: #e4dfff;
+  --next: #bcb4ff;
+  --timenums: #fcfbff;
+  --tabletext: #eeebff;
+  --border: rgba(172, 163, 255, 0.2);
+  --active-border: #b5acff;
+  --time-glow: 0 0 5px rgba(255, 255, 255, 0.65), 0 0 20px rgba(137, 124, 255, 0.4);
+}
+
+/* Clean jade and ice, designed for maximum calm and clarity. */
+:root[data-theme="jade-ice"] {
+  --panel-bg: radial-gradient(circle at 70% 0%, #164b4b 0%, #0a2f32 40%, #031417 74%, #010709 100%);
+  --table-bg: linear-gradient(165deg, #18534a 0%, #103a36 48%, #071f21 100%);
+  --active-row-bg: linear-gradient(90deg, #17605b 0%, #25817a 50%, #104b4b 100%);
+  --iqamatime-bg: radial-gradient(circle at center, #17494a 0%, #082426 44%, #01090a 100%);
+  --current-time: #cbfff4;
+  --next: #8effe4;
+  --timenums: #f8fffe;
+  --tabletext: #e4fff9;
+  --border: rgba(110, 235, 216, 0.2);
+  --active-border: #79efd9;
+  --time-glow: 0 0 5px rgba(255, 255, 255, 0.64), 0 0 19px rgba(100, 255, 226, 0.36);
+}
+
+/* Dark bronze architecture with cream and amber lighting. */
+:root[data-theme="bronze-night"] {
+  --panel-bg: radial-gradient(circle at 70% 0%, #47351f 0%, #241b12 40%, #0c0906 74%, #030201 100%);
+  --table-bg: linear-gradient(165deg, #44331f 0%, #2b2116 50%, #130e09 100%);
+  --active-row-bg: linear-gradient(90deg, #68431d 0%, #98672c 52%, #513316 100%);
+  --iqamatime-bg: radial-gradient(circle at center, #4b3419 0%, #1b140c 44%, #050301 100%);
+  --current-time: #ffe1a8;
+  --next: #ffc96f;
+  --timenums: #fffdf8;
+  --tabletext: #f8ecd7;
+  --border: rgba(216, 167, 94, 0.2);
+  --active-border: #e5a94f;
+  --time-glow: 0 0 5px rgba(255, 255, 255, 0.62), 0 0 18px rgba(229, 169, 79, 0.38);
+}
+
+.prayer-time-number {
+  text-shadow: var(--time-glow);
+}

@@ -92,12 +92,17 @@ function buildJumuahEvent(row: JumuahSettingsRow | null): EventRow | null {
   };
 }
 
-export default function useEvents() {
+export default function useEvents(enabled = true) {
   const [events, setEvents] = useState<EventRow[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
+
     let isCancelled = false;
     let timerId: number | undefined;
 
@@ -124,8 +129,10 @@ export default function useEvents() {
           setEvents(merged);
           setError(null);
         }
-      } catch (err: any) {
-        if (!isCancelled) setError(err.message);
+      } catch (err: unknown) {
+        if (!isCancelled) {
+          setError(err instanceof Error ? err.message : "Unknown error loading events");
+        }
       } finally {
         if (!isCancelled) setLoading(false);
       }
@@ -157,7 +164,7 @@ export default function useEvents() {
       isCancelled = true;
       if (timerId) clearTimeout(timerId);
     };
-  }, []);
+  }, [enabled]);
 
   return { events, loading, error };
 }

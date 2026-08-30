@@ -18,6 +18,7 @@ import type { HadithRow } from "../hooks/useHadith"; // NEW: type for hadith row
 import qrCode from "../assets/qrcode.png"; // QR image for "Sign Up for Events" section
 import pbuhIcon from "../assets/pbuh.png";
 import locationPin from "../assets/location.png";
+import type { DisplayConfig, DisplayModuleKey } from "../hooks/useDisplayConfig";
 
 // All possible slide types in the global rotation
 type SlideKind = "countdown" | "event" | "hadith";
@@ -34,48 +35,42 @@ const DEBUG_SLIDE: SlideKind = "countdown";
 
 type Props = {
   prayerTimes: PrayerTimes;
+  displayConfig: DisplayConfig;
 };
 
-export default function RotatingSlides({ prayerTimes }: Props) {
+function getActiveModule(
+  modules: DisplayConfig["modules"],
+  cycleSecond: number,
+) {
+  let remaining = cycleSecond;
+  for (const module of modules) {
+    if (remaining < module.durationSeconds) return module;
+    remaining -= module.durationSeconds;
+  }
+  return undefined;
+}
+
+export default function RotatingSlides({ prayerTimes, displayConfig }: Props) {
   // Use the central useNow hook to get standard time (synced to seconds)
   const now = useNow();
-  const seconds = now.getSeconds();
-
-  // ─────────────────────────────────────────────
-  // CLOCK-SYNCED ROTATION
-  // The user wants specific content at specific 10-second slots of the minute.
-  // 00-10: Events
-  // 10-20: Countdown
-  // 20-30: Hadith
-  // 30-40: Events
-  // 40-50: Countdown
-  // 50-60: Countdown (Critical Override)
-  // ─────────────────────────────────────────────
-
-  const slot = Math.floor(seconds / 10); // 0..5
-
-  let targetSlide: SlideKind = "countdown"; // default safety
-
-  switch (slot) {
-    case 0: // :00 - :09
-      targetSlide = "hadith";
-      break;
-    case 1: // :10 - :19
-      targetSlide = "event";
-      break;
-    case 2: // :20 - :29
-      targetSlide = "countdown";
-      break;
-    case 3: // :30 - :39
-      targetSlide = "hadith";
-      break;
-    case 4: // :40 - :49
-      targetSlide = "event";
-      break;
-    case 5: // :50 - :59
-      targetSlide = "countdown";
-      break;
-  }
+  const enabledModules = displayConfig.modules.filter((module) => module.enabled);
+  const eventsEnabled = enabledModules.some((module) => module.key === "events");
+  const hadithEnabled = enabledModules.some((module) => module.key === "hadith");
+  const totalDuration = enabledModules.reduce(
+    (total, module) => total + module.durationSeconds,
+    0,
+  );
+  const cycleSecond =
+    totalDuration > 0 ? Math.floor(now.getTime() / 1000) % totalDuration : 0;
+  const activeModule = getActiveModule(enabledModules, cycleSecond);
+  const moduleToSlide: Record<DisplayModuleKey, SlideKind> = {
+    countdown: "countdown",
+    events: "event",
+    hadith: "hadith",
+  };
+  let targetSlide: SlideKind = activeModule
+    ? moduleToSlide[activeModule.key]
+    : "countdown";
 
   // Debug freeze overrules everything
   if (DEBUG_FREEZE) {
@@ -88,14 +83,16 @@ export default function RotatingSlides({ prayerTimes }: Props) {
   const [fadeStage, setFadeStage] = useState<"in" | "out">("in");
 
   useEffect(() => {
-    // If we're already showing the right slide, ensure we're faded in
+    // Nothing to transition when the requested slide is already visible.
     if (visibleSlide === targetSlide) {
-      setFadeStage("in");
       return;
     }
 
-    // Otherwise, we need to transition: Fade Out -> Switch -> Fade In
-    setFadeStage("out");
+    // Otherwise, transition on the next animation frame: Fade Out -> Switch
+    // -> Fade In. Scheduling it also avoids a synchronous effect update.
+    const fadeOutFrame = requestAnimationFrame(() => {
+      setFadeStage("out");
+    });
 
     const timeoutId = setTimeout(() => {
       setVisibleSlide(targetSlide);
@@ -111,7 +108,10 @@ export default function RotatingSlides({ prayerTimes }: Props) {
       });
     }, 500); // Wait 500ms for fade out to complete
 
-    return () => clearTimeout(timeoutId);
+    return () => {
+      cancelAnimationFrame(fadeOutFrame);
+      clearTimeout(timeoutId);
+    };
   }, [targetSlide, visibleSlide]);
 
   // Events from Supabase
@@ -119,14 +119,14 @@ export default function RotatingSlides({ prayerTimes }: Props) {
     events,
     loading: loadingEvents,
     error: eventsError,
-  } = useEvents();
+  } = useEvents(eventsEnabled);
 
   // Hadith-of-the-day from Supabase
   const {
     hadith,
     loading: loadingHadith,
     error: hadithError,
-  } = useHadith();
+  } = useHadith(hadithEnabled);
 
   const opacityClass = fadeStage === "in" ? "opacity-100" : "opacity-0";
 
@@ -147,6 +147,8 @@ export default function RotatingSlides({ prayerTimes }: Props) {
           events={events}
           loading={loadingEvents}
           error={eventsError}
+          qrImageUrl={displayConfig.eventsQrImageUrl}
+          signupUrl={displayConfig.eventsSignupUrl}
         />
       )}
 
@@ -169,10 +171,29 @@ type EventSlideProps = {
   events: EventRow[];
   loading: boolean;
   error: string | null;
+  qrImageUrl: string | null;
+  signupUrl: string | null;
 };
 
-function EventSlide({ events, loading, error }: EventSlideProps) {
+function EventSlide({ events, loading, error, qrImageUrl, signupUrl }: EventSlideProps) {
   const [page, setPage] = useState(0); // 0 = events 1–2, 1 = events 3–4
+
+  const fourEvents = events.slice(0, 4); // only the first 4 upcoming events
+  const PER_PAGE = 2; // 2 rows per page
+  const maxPages = Math.ceil(fourEvents.length / PER_PAGE) || 1;
+  const safePage = Math.min(page, maxPages - 1);
+  const startIndex = safePage * PER_PAGE;
+  const visibleEvents = fourEvents.slice(startIndex, startIndex + PER_PAGE);
+
+  useEffect(() => {
+    if (maxPages <= 1) return;
+
+    const intervalId = window.setInterval(() => {
+      setPage((prev) => (prev + 1) % maxPages);
+    }, 5000); // 5s per page
+
+    return () => window.clearInterval(intervalId);
+  }, [maxPages]);
 
   if (loading && events.length === 0) {
     return (
@@ -203,27 +224,6 @@ function EventSlide({ events, loading, error }: EventSlideProps) {
       </div>
     );
   }
-
-  const fourEvents = events.slice(0, 4); // only the first 4 upcoming events
-  const PER_PAGE = 2; // 2 rows per page
-  const maxPages = Math.ceil(fourEvents.length / PER_PAGE) || 1;
-  const safePage = Math.min(page, maxPages - 1);
-  const startIndex = safePage * PER_PAGE;
-  const visibleEvents = fourEvents.slice(startIndex, startIndex + PER_PAGE);
-
-  useEffect(() => {
-    setPage(0); // reset when events change
-  }, [events.length]);
-
-  useEffect(() => {
-    if (maxPages <= 1) return;
-
-    const intervalId = window.setInterval(() => {
-      setPage((prev) => (prev + 1) % maxPages);
-    }, 5000); // 5s per page
-
-    return () => window.clearInterval(intervalId);
-  }, [maxPages]);
 
   return (
     <div className="w-full h-full flex flex-col justify-between px-10 py-6">
@@ -277,7 +277,7 @@ function EventSlide({ events, loading, error }: EventSlideProps) {
       {/* BOTTOM: QR code + sign-up text */}
       <div className="mt-6 flex items-center justify-center gap-8">
         <img
-          src={qrCode}
+          src={qrImageUrl || qrCode}
           alt="Sign up for events QR code"
           className="w-35 h-35 md:w-35 md:h-35 rounded-2xl border border-white/30"
         />
@@ -287,7 +287,7 @@ function EventSlide({ events, loading, error }: EventSlideProps) {
             Sign Up for Events
           </p>
           <p className="text-2xl md:text-3xl text-sky-100 mt-2 leading-snug">
-            Scan the QR code to visit our Linktree.
+            {signupUrl ? "Scan the QR code to sign up." : "Scan the QR code to visit our Linktree."}
           </p>
         </div>
       </div>
